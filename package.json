@@ -1,0 +1,28 @@
+{
+  "name": "future-media-mono",
+  "version": "1.0.0",
+  "description": "Test assessment for future media",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @app/api start:dev & pnpm --filter @app/web dev",
+    "dev:api": "pnpm --filter @app/api start:dev",
+    "dev:web": "pnpm --filter @app/web dev",
+    "build": "pnpm -r build",
+    "build:api": "pnpm --filter @app/api build",
+    "build:web": "pnpm --filter @app/web build",
+    "start:api": "pnpm --filter @app/api start:prod",
+    "start:web": "pnpm --filter @app/web start",
+    "test": "pnpm --filter @app/api test",
+    "test:watch": "pnpm --filter @app/api test:watch",
+    "test:e2e": "pnpm --filter @app/api test:e2e",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.7.4"
+  }
+}
