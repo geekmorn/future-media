@@ -1,10 +1,60 @@
-import type { Post } from "@repo/types";
+import type { Post, Tag } from "@repo/types";
 
 export const CURRENT_USER = {
   id: "user-1",
   name: "Makar B.",
   color: "#7c34f8",
 };
+
+// Track all tags (existing + newly created)
+let allTagsMap = new Map<string, Tag>();
+let tagsInitialized = false;
+let nextTagId = 100; // Start from 100 to avoid conflicts with existing tags
+let nextPostId = 1000; // Start from 1000 to avoid conflicts with existing posts
+
+// Initialize tags from existing posts (lazy initialization)
+function initializeTags() {
+  if (tagsInitialized) return;
+  
+  MOCK_POSTS.forEach((post) => {
+    post.tags.forEach((tag) => {
+      if (!allTagsMap.has(tag.id)) {
+        allTagsMap.set(tag.id, tag);
+      }
+    });
+  });
+  
+  tagsInitialized = true;
+}
+
+// Get all available tags
+export function getAllTags(): Tag[] {
+  initializeTags();
+  return Array.from(allTagsMap.values());
+}
+
+// Create a new tag
+export function createTag(name: string): Tag {
+  initializeTags();
+  
+  // Check if tag with this name already exists (case-insensitive)
+  const existingTag = Array.from(allTagsMap.values()).find(
+    (tag) => tag.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (existingTag) {
+    return existingTag;
+  }
+
+  // Create new tag
+  const newTag: Tag = {
+    id: `t${nextTagId++}`,
+    name: name.trim(),
+  };
+
+  allTagsMap.set(newTag.id, newTag);
+  return newTag;
+}
 
 // Static mock posts to avoid hydration mismatch
 // Time values are relative offsets in minutes from "now" for display purposes
@@ -256,3 +306,25 @@ export const MOCK_POSTS: Post[] = [
     createdAt: new Date("2024-12-05T10:00:00"),
   },
 ];
+
+// Create a new post
+export function createPost(content: string, tags: Tag[]): Post {
+  const newPost: Post = {
+    id: `post-${nextPostId++}`,
+    content,
+    tags,
+    authorId: CURRENT_USER.id,
+    authorName: CURRENT_USER.name,
+    authorColor: CURRENT_USER.color,
+    createdAt: new Date(),
+  };
+
+  // Add new tags to the tags map
+  tags.forEach((tag) => {
+    if (!allTagsMap.has(tag.id)) {
+      allTagsMap.set(tag.id, tag);
+    }
+  });
+
+  return newPost;
+}

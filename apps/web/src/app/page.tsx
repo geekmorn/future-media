@@ -1,18 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import type { Post, Tag } from "@repo/types";
 import { PostsTabs, type PostsFilter } from "@/components/posts/posts-tabs";
 import { PostsHeader } from "@/components/posts/posts-header";
 import { PostsList } from "@/components/posts/posts-list";
-import { MOCK_POSTS, CURRENT_USER } from "@/lib/mock/posts";
+import { CreatePostModal } from "@/components/posts/create-post-modal";
+import {
+  MOCK_POSTS,
+  CURRENT_USER,
+  getAllTags,
+  createTag,
+  createPost,
+} from "@/lib/mock/posts";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<PostsFilter>("all");
+  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredPosts =
-    activeTab === "my"
-      ? MOCK_POSTS.filter((post) => post.authorId === CURRENT_USER.id)
-      : MOCK_POSTS;
+  const filteredPosts = useMemo(
+    () =>
+      activeTab === "my"
+        ? posts.filter((post) => post.authorId === CURRENT_USER.id)
+        : posts,
+    [posts, activeTab]
+  );
+
+  const availableTags = useMemo(() => getAllTags(), []);
 
   const handleSearchClick = () => {
     // TODO: Implement search
@@ -23,7 +38,16 @@ export default function Home() {
   };
 
   const handleCreateClick = () => {
-    // TODO: Implement create post
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmitPost = (content: string, tags: Tag[]) => {
+    const newPost = createPost(content, tags);
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
   };
 
   return (
@@ -56,6 +80,17 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Create Post Modal */}
+      <CreatePostModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitPost}
+        userName={CURRENT_USER.name}
+        userColor={CURRENT_USER.color}
+        availableTags={availableTags}
+        onCreateTag={createTag}
+      />
     </div>
   );
 }
