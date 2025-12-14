@@ -1,54 +1,44 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import type { Post, Tag } from "@repo/types";
+import { useState, useMemo, useCallback } from "react";
+import type { Tag } from "@repo/types";
+import { useAuth } from "@/lib/auth";
+import { usePosts, useTags, useUsers, useInfiniteScroll } from "@/hooks";
 import { PostsHeader } from "@/components/posts/posts-header";
 import { PostsList } from "@/components/posts/posts-list";
 import { CreatePostModal } from "@/components/posts/create-post-modal";
-import {
-  FilterModal,
-  type FilterState,
-} from "@/components/posts/filter-modal";
-import {
-  MOCK_POSTS,
-  CURRENT_USER,
-  getAllTags,
-  getAllUsers,
-  createTag,
-  createPost,
-} from "@/lib/mock/posts";
+import { FilterModal, type FilterState } from "@/components/posts/filter-modal";
 
 export default function Home() {
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState>({
-    usernames: [],
-    tags: [],
+    userIds: [],
+    tagIds: [],
   });
 
-  const filteredPosts = useMemo(() => {
-    let result = posts;
+  const {
+    posts,
+    isLoading: isPostsLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    createPost,
+  } = usePosts({
+    authorIds: activeFilters.userIds.length > 0 ? activeFilters.userIds : undefined,
+    tagIds: activeFilters.tagIds.length > 0 ? activeFilters.tagIds : undefined,
+  });
 
-    // Filter by usernames
-    if (activeFilters.usernames.length > 0) {
-      result = result.filter((post) =>
-        activeFilters.usernames.includes(post.authorName)
-      );
-    }
+  const { tags: availableTags } = useTags();
+  const { users: availableUsers } = useUsers();
 
-    // Filter by tags
-    if (activeFilters.tags.length > 0) {
-      result = result.filter((post) =>
-        post.tags.some((tag) => activeFilters.tags.includes(tag.name))
-      );
-    }
-
-    return result;
-  }, [posts, activeFilters]);
-
-  const availableTags = useMemo(() => getAllTags(), []);
-  const availableUsers = useMemo(() => getAllUsers(), []);
+  // Infinite scroll
+  const { lastElementRef } = useInfiniteScroll({
+    onLoadMore: loadMore,
+    hasMore,
+    isLoading: isLoadingMore,
+  });
 
   const handleFilterClick = () => {
     setIsFilterModalOpen(true);
@@ -63,11 +53,11 @@ export default function Home() {
   };
 
   const handleResetFilter = () => {
-    setActiveFilters({ usernames: [], tags: [] });
+    setActiveFilters({ userIds: [], tagIds: [] });
   };
 
   const isFilterActive =
-    activeFilters.usernames.length > 0 || activeFilters.tags.length > 0;
+    activeFilters.userIds.length > 0 || activeFilters.tagIds.length > 0;
 
   const handleCreateClick = () => {
     setIsModalOpen(true);
@@ -77,10 +67,50 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
-  const handleSubmitPost = (content: string, tags: Tag[]) => {
-    const newPost = createPost(content, tags);
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
-  };
+  const handleSubmitPost = useCallback(
+    async (content: string, tags: Tag[]) => {
+      try {
+        // Separate existing tags (have UUID) from new tags (have custom IDs)
+        const existingTagIds = tags
+          .filter((tag) => tag.id.match(/^[0-9a-f-]{36}$/i))
+          .map((tag) => tag.id);
+        const newTagNames = tags
+          .filter((tag) => !tag.id.match(/^[0-9a-f-]{36}$/i))
+          .map((tag) => tag.name);
+
+        await createPost({
+          content,
+          tagIds: existingTagIds.length > 0 ? existingTagIds : undefined,
+          tagNames: newTagNames.length > 0 ? newTagNames : undefined,
+        });
+      } catch (error) {
+        console.error("Failed to create post:", error);
+      }
+    },
+    [createPost]
+  );
+
+  // Create tag handler for the modal (creates temporary tag object)
+  const handleCreateTag = useCallback((name: string): Tag => {
+    return {
+      id: `new-${Date.now()}`,
+      name: name.trim(),
+    };
+  }, []);
+
+  // Show loading state
+  if (isAuthLoading) {
+    return (
+      <div className="bg-[#111] h-screen w-full flex items-center justify-center">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // User should always exist here due to middleware protection
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="bg-[#111] relative h-screen w-full flex flex-col overflow-hidden">
@@ -92,8 +122,8 @@ export default function Home() {
         {/* Posts header - sticky */}
         <div className="sticky top-0 z-10 w-full max-w-[643px] pt-[32px]">
           <PostsHeader
-            userName={CURRENT_USER.name}
-            userColor={CURRENT_USER.color}
+            userName={user.name}
+            userColor={user.color ?? "#6366f1"}
             onFilterClick={handleFilterClick}
             onCreateClick={handleCreateClick}
             isFilterActive={isFilterActive}
@@ -105,7 +135,22 @@ export default function Home() {
         <div className="flex flex-col w-full max-w-[643px] h-fit">
           {/* Posts list */}
           <div className="flex flex-col px-[16px] py-[24px]">
-            <PostsList posts={filteredPosts} />
+            {isPostsLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-[#9747ff] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[14px] leading-[20px] text-[rgba(255,255,255,0.6)]">
+                    Loading posts...
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <PostsList
+                posts={posts}
+                isLoadingMore={isLoadingMore}
+                lastElementRef={lastElementRef}
+              />
+            )}
           </div>
         </div>
       </main>
@@ -115,10 +160,10 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmitPost}
-        userName={CURRENT_USER.name}
-        userColor={CURRENT_USER.color}
+        userName={user.name}
+        userColor={user.color ?? "#6366f1"}
         availableTags={availableTags}
-        onCreateTag={createTag}
+        onCreateTag={handleCreateTag}
       />
 
       {/* Filter Modal */}

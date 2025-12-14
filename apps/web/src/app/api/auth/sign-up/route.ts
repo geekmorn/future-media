@@ -1,78 +1,45 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { API_BASE_URL } from "@/lib/api/config";
 
-interface SignUpRequest {
-  name: string;
-  password: string;
-}
-
-// Mock user database (заглушка)
-const MOCK_USERS: Array<{
-  id: string;
-  name: string;
-  password: string;
-}> = [
-  {
-    id: "1",
-    name: "testuser",
-    password: "password123",
-  },
-  {
-    id: "2",
-    name: "admin",
-    password: "admin123",
-  },
-];
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body: SignUpRequest = await request.json();
-    const { name, password } = body;
+    const body = await request.json();
 
-    // Валидация
-    if (!name || !password) {
-      return NextResponse.json(
-        { error: "Name and password are required" },
-        { status: 400 }
-      );
-    }
-
-    // Имитация задержки сети
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Проверка, существует ли пользователь с таким именем
-    const existingUser = MOCK_USERS.find(
-      (u) => u.name.toLowerCase() === name.toLowerCase()
-    );
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "User with this name already exists" },
-        { status: 409 }
-      );
-    }
-
-    // Создание нового пользователя
-    const newUser = {
-      id: String(MOCK_USERS.length + 1),
-      name: name.trim(),
-      password: password, // В реальном приложении используйте bcrypt
-    };
-
-    MOCK_USERS.push(newUser);
-
-    // Успешная регистрация
-    return NextResponse.json(
-      {
-        success: true,
-        user: {
-          id: newUser.id,
-          name: newUser.name,
-        },
+    const response = await fetch(`${API_BASE_URL}/auth/sign-up`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      { status: 201 }
-    );
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data.message || "Failed to sign up" },
+        { status: response.status }
+      );
+    }
+
+    // Create response with user data
+    const res = NextResponse.json({
+      success: true,
+      user: data.user,
+    });
+
+    // Forward cookies from NestJS API
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      const cookies = setCookieHeader.split(/,(?=\s*\w+=)/);
+      for (const cookie of cookies) {
+        res.headers.append("set-cookie", cookie.trim());
+      }
+    }
+
+    return res;
   } catch (error) {
-    console.error("Sign up error:", error);
+    console.error("Sign up proxy error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

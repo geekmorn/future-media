@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signUp } from "@/lib/api/auth";
+import { useAuth } from "@/lib/auth";
 
 interface SignUpFormData {
   name: string;
@@ -19,8 +19,11 @@ interface FormErrors {
   general?: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4050";
+
 export function SignUpForm() {
   const router = useRouter();
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
     password: "",
@@ -63,10 +66,7 @@ export function SignUpForm() {
     setErrors({});
 
     try {
-      const result = await signUp({
-        name: formData.name.trim(),
-        password: formData.password,
-      });
+      const result = await signUp(formData.name.trim(), formData.password);
 
       if (result.success) {
         router.push("/");
@@ -91,6 +91,11 @@ export function SignUpForm() {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     };
+  };
+
+  const handleGoogleSignUp = () => {
+    // Redirect to API Google OAuth endpoint
+    window.location.href = `${API_BASE_URL}/api/auth/google/start`;
   };
 
   return (
@@ -118,7 +123,7 @@ export function SignUpForm() {
         <Input
           label="Password"
           type="password"
-          placeholder="enter your password"
+          placeholder="Enter your password"
           value={formData.password}
           onChange={handleChange("password")}
           error={errors.password}
@@ -158,6 +163,7 @@ export function SignUpForm() {
           variant="secondary"
           className="w-full relative"
           disabled={isLoading}
+          onClick={handleGoogleSignUp}
         >
           <svg
             className="absolute left-4 w-6 h-6"

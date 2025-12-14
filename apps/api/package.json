@@ -23,7 +23,8 @@
     "migration:run": "pnpm typeorm migration:run -d src/config/typeorm.config.ts",
     "migration:revert": "pnpm typeorm migration:revert -d src/config/typeorm.config.ts",
     "schema:sync": "pnpm typeorm schema:sync -d src/config/typeorm.config.ts",
-    "schema:drop": "pnpm typeorm schema:drop -d src/config/typeorm.config.ts"
+    "schema:drop": "pnpm typeorm schema:drop -d src/config/typeorm.config.ts",
+    "seed:posts": "ts-node scripts/seed-posts.ts"
   },
   "dependencies": {
     "@repo/types": "workspace:*",

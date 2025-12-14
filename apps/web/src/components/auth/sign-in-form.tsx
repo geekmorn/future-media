@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/lib/api/auth";
+import { useAuth } from "@/lib/auth";
 
 interface SignInFormData {
   name: string;
@@ -17,8 +17,11 @@ interface FormErrors {
   general?: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4050";
+
 export function SignInForm() {
   const router = useRouter();
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState<SignInFormData>({
     name: "",
     password: "",
@@ -54,10 +57,7 @@ export function SignInForm() {
     setErrors({});
 
     try {
-      const result = await signIn({
-        name: formData.name.trim(),
-        password: formData.password,
-      });
+      const result = await signIn(formData.name.trim(), formData.password);
 
       if (result.success) {
         router.push("/");
@@ -66,7 +66,7 @@ export function SignInForm() {
           general: result.error || "Failed to sign in. Please try again.",
         });
       }
-    } catch (error) {
+    } catch {
       setErrors({
         general: "An unexpected error occurred. Please try again.",
       });
@@ -82,6 +82,11 @@ export function SignInForm() {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     };
+  };
+
+  const handleGoogleSignIn = () => {
+    // Redirect to API Google OAuth endpoint
+    window.location.href = `${API_BASE_URL}/api/auth/google/start`;
   };
 
   return (
@@ -109,7 +114,7 @@ export function SignInForm() {
         <Input
           label="Password"
           type="password"
-          placeholder="enter your password"
+          placeholder="Enter your password"
           value={formData.password}
           onChange={handleChange("password")}
           error={errors.password}
@@ -137,6 +142,7 @@ export function SignInForm() {
           variant="secondary"
           className="w-full relative"
           disabled={isLoading}
+          onClick={handleGoogleSignIn}
         >
           <svg
             className="absolute left-4 w-6 h-6"
@@ -164,8 +170,6 @@ export function SignInForm() {
           Sign in with Google
         </Button>
       </div>
-
     </form>
   );
 }
-

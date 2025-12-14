@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { Tag } from "@repo/types";
-import type { User } from "@/lib/mock/posts";
+import type { User } from "@/lib/api/posts";
 import {
   CloseIcon,
   ChevronDownIcon,
@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface FilterState {
-  usernames: string[];
-  tags: string[];
+  userIds: string[];
+  tagIds: string[];
 }
 
 export interface FilterModalProps {
@@ -37,11 +37,11 @@ export function FilterModal({
   initialFilters,
 }: FilterModalProps) {
   const [expandedSection, setExpandedSection] = useState<ExpandedSection>(null);
-  const [selectedUsernames, setSelectedUsernames] = useState<string[]>(
-    initialFilters?.usernames ?? []
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(
+    initialFilters?.userIds ?? []
   );
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    initialFilters?.tags ?? []
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+    initialFilters?.tagIds ?? []
   );
   const [usernameSearch, setUsernameSearch] = useState("");
   const [tagSearch, setTagSearch] = useState("");
@@ -57,8 +57,8 @@ export function FilterModal({
   // Reset state when modal opens with initial filters
   useEffect(() => {
     if (isOpen) {
-      setSelectedUsernames(initialFilters?.usernames ?? []);
-      setSelectedTags(initialFilters?.tags ?? []);
+      setSelectedUserIds(initialFilters?.userIds ?? []);
+      setSelectedTagIds(initialFilters?.tagIds ?? []);
       setUsernameSearch("");
       setTagSearch("");
       setExpandedSection(null);
@@ -116,6 +116,15 @@ export function FilterModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Get selected users/tags for display
+  const selectedUsers = useMemo(() => {
+    return availableUsers.filter((user) => selectedUserIds.includes(user.id));
+  }, [availableUsers, selectedUserIds]);
+
+  const selectedTags = useMemo(() => {
+    return availableTags.filter((tag) => selectedTagIds.includes(tag.id));
+  }, [availableTags, selectedTagIds]);
+
   // Filter users based on search
   const filteredUsers = useMemo(() => {
     const search = usernameSearch.toLowerCase().trim();
@@ -140,50 +149,50 @@ export function FilterModal({
     setShowTagDropdown(false);
   };
 
-  const handleSelectUsername = (username: string) => {
-    setSelectedUsernames((prev) =>
-      prev.includes(username)
-        ? prev.filter((u) => u !== username)
-        : [...prev, username]
+  const handleSelectUser = (userId: string) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
     );
     setShowUsernameDropdown(false);
     setUsernameSearch("");
   };
 
-  const handleRemoveUsername = (username: string) => {
-    setSelectedUsernames((prev) => prev.filter((u) => u !== username));
+  const handleRemoveUser = (userId: string) => {
+    setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
   };
 
-  const handleSelectTag = (tagName: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagName)
-        ? prev.filter((t) => t !== tagName)
-        : [...prev, tagName]
+  const handleSelectTag = (tagId: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
     );
     setShowTagDropdown(false);
     setTagSearch("");
   };
 
-  const handleRemoveTag = (tagName: string) => {
-    setSelectedTags((prev) => prev.filter((t) => t !== tagName));
+  const handleRemoveTag = (tagId: string) => {
+    setSelectedTagIds((prev) => prev.filter((id) => id !== tagId));
   };
 
   const handleReset = () => {
-    setSelectedUsernames([]);
-    setSelectedTags([]);
+    setSelectedUserIds([]);
+    setSelectedTagIds([]);
     setUsernameSearch("");
     setTagSearch("");
   };
 
   const handleApply = () => {
     onApply({
-      usernames: selectedUsernames,
-      tags: selectedTags,
+      userIds: selectedUserIds,
+      tagIds: selectedTagIds,
     });
     onClose();
   };
 
-  const hasFilters = selectedUsernames.length > 0 || selectedTags.length > 0;
+  const hasFilters = selectedUserIds.length > 0 || selectedTagIds.length > 0;
 
   if (!isOpen) return null;
 
@@ -230,27 +239,27 @@ export function FilterModal({
                 <button
                   type="button"
                   onClick={() => handleToggleSection("username")}
-                  className="w-full flex items-center justify-between px-4 py-[10px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-[10px] rounded-[8px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
                     <span className="text-[16px] font-medium leading-[24px] text-white">
                       By user name
                     </span>
                     {/* Selected chips in collapsed state */}
-                    {selectedUsernames.map((username) => (
+                    {selectedUsers.map((user) => (
                       <div
-                        key={username}
+                        key={user.id}
                         className="bg-[#18141d] border border-[#9747ff] flex items-center gap-[6px] px-3 py-2 rounded-[8px]"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span className="text-[14px] font-normal leading-[20px] text-[#9747ff]">
-                          {username}
+                          {user.name}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRemoveUsername(username);
+                            handleRemoveUser(user.id);
                           }}
                           className="text-[#9747ff] hover:text-[#b777ff] transition-colors"
                         >
@@ -312,14 +321,14 @@ export function FilterModal({
                           }}
                         >
                           {filteredUsers.map((user) => {
-                            const isSelected = selectedUsernames.includes(
-                              user.name
+                            const isSelected = selectedUserIds.includes(
+                              user.id
                             );
                             return (
                               <button
                                 key={user.id}
                                 type="button"
-                                onClick={() => handleSelectUsername(user.name)}
+                                onClick={() => handleSelectUser(user.id)}
                                 className={cn(
                                   "w-full flex items-center justify-between p-3 rounded-[8px] transition-colors",
                                   isSelected
@@ -342,19 +351,19 @@ export function FilterModal({
                   </div>
 
                   {/* Selected chips */}
-                  {selectedUsernames.length > 0 && (
+                  {selectedUsers.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {selectedUsernames.map((username) => (
+                      {selectedUsers.map((user) => (
                         <div
-                          key={username}
+                          key={user.id}
                           className="bg-[#18141d] border border-[#9747ff] flex items-center gap-[6px] px-3 py-2 rounded-[8px]"
                         >
                           <span className="text-[14px] font-normal leading-[20px] text-[#9747ff]">
-                            {username}
+                            {user.name}
                           </span>
                           <button
                             type="button"
-                            onClick={() => handleRemoveUsername(username)}
+                            onClick={() => handleRemoveUser(user.id)}
                             className="text-[#9747ff] hover:text-[#b777ff] transition-colors"
                           >
                             <CloseIcon className="size-4" />
@@ -374,27 +383,27 @@ export function FilterModal({
                 <button
                   type="button"
                   onClick={() => handleToggleSection("tag")}
-                  className="w-full flex items-center justify-between px-4 py-[10px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-[10px] rounded-[8px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
                     <span className="text-[16px] font-medium leading-[24px] text-white">
                       By tag
                     </span>
                     {/* Selected chips in collapsed state */}
-                    {selectedTags.map((tagName) => (
+                    {selectedTags.map((tag) => (
                       <div
-                        key={tagName}
+                        key={tag.id}
                         className="bg-[#18141d] border border-[#9747ff] flex items-center gap-[6px] px-3 py-2 rounded-[8px]"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span className="text-[14px] font-normal leading-[20px] text-[#9747ff]">
-                          {tagName}
+                          {tag.name}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRemoveTag(tagName);
+                            handleRemoveTag(tag.id);
                           }}
                           className="text-[#9747ff] hover:text-[#b777ff] transition-colors"
                         >
@@ -456,12 +465,12 @@ export function FilterModal({
                           }}
                         >
                           {filteredTags.map((tag) => {
-                            const isSelected = selectedTags.includes(tag.name);
+                            const isSelected = selectedTagIds.includes(tag.id);
                             return (
                               <button
                                 key={tag.id}
                                 type="button"
-                                onClick={() => handleSelectTag(tag.name)}
+                                onClick={() => handleSelectTag(tag.id)}
                                 className={cn(
                                   "w-full flex items-center justify-between p-3 rounded-[8px] transition-colors",
                                   isSelected
@@ -486,17 +495,17 @@ export function FilterModal({
                   {/* Selected chips */}
                   {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {selectedTags.map((tagName) => (
+                      {selectedTags.map((tag) => (
                         <div
-                          key={tagName}
+                          key={tag.id}
                           className="bg-[#18141d] border border-[#9747ff] flex items-center gap-[6px] px-3 py-2 rounded-[8px]"
                         >
                           <span className="text-[14px] font-normal leading-[20px] text-[#9747ff]">
-                            {tagName}
+                            {tag.name}
                           </span>
                           <button
                             type="button"
-                            onClick={() => handleRemoveTag(tagName)}
+                            onClick={() => handleRemoveTag(tag.id)}
                             className="text-[#9747ff] hover:text-[#b777ff] transition-colors"
                           >
                             <CloseIcon className="size-4" />

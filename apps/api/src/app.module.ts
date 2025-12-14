@@ -5,6 +5,7 @@ import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { UsersModule } from './modules/users/users.module';
 import { UserEntity, TagEntity, PostEntity } from './entities';
 import { JwtAuthGuard } from './common/guards';
 import { AllExceptionsFilter } from './common/filters';
@@ -28,6 +29,7 @@ import { AllExceptionsFilter } from './common/filters';
     AuthModule,
     PostsModule,
     TagsModule,
+    UsersModule,
   ],
   providers: [
     {

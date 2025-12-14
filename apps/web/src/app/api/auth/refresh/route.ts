@@ -3,35 +3,30 @@ import { API_BASE_URL } from "@/lib/api/config";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const cookies = request.headers.get("cookie") ?? "";
 
-    const response = await fetch(`${API_BASE_URL}/auth/sign-in`, {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        Cookie: cookies,
       },
-      body: JSON.stringify(body),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Failed to sign in" },
+        { error: data.message || "Failed to refresh" },
         { status: response.status }
       );
     }
 
-    // Create response with user data
-    const res = NextResponse.json({
-      success: true,
-      user: data.user,
-    });
+    // Create response
+    const res = NextResponse.json({ success: true });
 
-    // Forward cookies from NestJS API
+    // Forward new cookies from NestJS API
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
-      // Split multiple cookies (they come separated by comma)
       const cookies = setCookieHeader.split(/,(?=\s*\w+=)/);
       for (const cookie of cookies) {
         res.headers.append("set-cookie", cookie.trim());
@@ -40,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return res;
   } catch (error) {
-    console.error("Sign in proxy error:", error);
+    console.error("Refresh proxy error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

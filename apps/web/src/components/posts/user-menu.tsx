@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/avatar";
-import { signOut } from "@/lib/api/auth";
+import { useAuth } from "@/lib/auth";
 
 export interface UserMenuProps {
   userName: string;
@@ -15,6 +15,7 @@ export function UserMenu({ userName, userColor }: UserMenuProps) {
   const [isLoading, setIsLoading] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { signOut } = useAuth();
 
   // Close menu when clicking outside
   useEffect(() => {

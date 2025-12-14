@@ -10,7 +10,7 @@ import { CloseIcon } from "@/components/icons";
 export interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (content: string, tags: Tag[]) => void;
+  onSubmit: (content: string, tags: Tag[]) => void | Promise<void>;
   userName: string;
   userColor: string;
   availableTags: Tag[];
@@ -31,6 +31,7 @@ export function CreatePostModal({
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -40,6 +41,7 @@ export function CreatePostModal({
       setContent("");
       setSelectedTags([]);
       setError("");
+      setIsSubmitting(false);
       // Focus textarea when modal opens
       setTimeout(() => {
         textareaRef.current?.focus();
@@ -50,14 +52,14 @@ export function CreatePostModal({
   // Close on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape" && isOpen && !isSubmitting) {
         onClose();
       }
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isSubmitting]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -79,7 +81,7 @@ export function CreatePostModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const trimmedContent = content.trim();
@@ -93,11 +95,20 @@ export function CreatePostModal({
       return;
     }
 
-    onSubmit(trimmedContent, selectedTags);
-    onClose();
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      await onSubmit(trimmedContent, selectedTags);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create post");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const isValid = content.trim() && content.length <= MAX_CONTENT_LENGTH;
+  const isValid = content.trim() && content.length <= MAX_CONTENT_LENGTH && !isSubmitting;
 
   if (!isOpen) return null;
 
@@ -105,7 +116,7 @@ export function CreatePostModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={(e) => {
-        if (e.target === e.currentTarget) {
+        if (e.target === e.currentTarget && !isSubmitting) {
           onClose();
         }
       }}
@@ -116,7 +127,7 @@ export function CreatePostModal({
       {/* Modal */}
       <div
         ref={modalRef}
-        className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px] overflow-hidden"
+        className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]"
       >
         {/* Header */}
         <div className="relative flex items-center justify-center h-[52px] px-4 border-b border-[rgba(255,255,255,0.2)]">
@@ -126,7 +137,8 @@ export function CreatePostModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-[8px] rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+            disabled={isSubmitting}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-[8px] rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors disabled:opacity-50"
             aria-label="Close modal"
           >
             <CloseIcon className="size-6 text-white" />
@@ -167,7 +179,8 @@ export function CreatePostModal({
                 onChange={handleContentChange}
                 placeholder="What do you want to share today?"
                 rows={3}
-                className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[rgba(255,255,255,0.6)] placeholder:text-[rgba(255,255,255,0.6)] focus:outline-none resize-none"
+                disabled={isSubmitting}
+                className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[rgba(255,255,255,0.6)] placeholder:text-[rgba(255,255,255,0.6)] focus:outline-none resize-none disabled:opacity-50"
               />
               {error && (
                 <p className="text-[12px] leading-[16px] text-red-500">
@@ -184,6 +197,7 @@ export function CreatePostModal({
               variant="primary"
               size="md"
               disabled={!isValid}
+              isLoading={isSubmitting}
               className="w-[182px]"
             >
               Upload
