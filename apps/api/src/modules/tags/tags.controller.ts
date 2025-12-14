@@ -1,0 +1,21 @@
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { TagsService } from './tags.service';
+import { GetTagsQueryDto, TagsListResponseDto } from './dto';
+import { Public } from '../../common/decorators';
+
+@ApiTags('Tags')
+@Controller('tags')
+export class TagsController {
+  constructor(private readonly tagsService: TagsService) {}
+
+  @Public()
+  @Get()
+  @ApiOperation({ summary: 'Get tags with optional search' })
+  @ApiQuery({ name: 'search', required: false, description: 'Search query' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Max tags (1-20)' })
+  @ApiResponse({ status: 200, description: 'List of tags', type: TagsListResponseDto })
+  async findAll(@Query() query: GetTagsQueryDto): Promise<TagsListResponseDto> {
+    return this.tagsService.findAll(query);
+  }
+}

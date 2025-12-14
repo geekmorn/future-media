@@ -1,14 +1,8 @@
 // Shared types for the monorepo
-// Add your shared types here
 
 export type User = {
-  userId: string;
-  userName: string;
-  firstName: string;
-  lastName: string;
-  isActive: boolean;
-  createdAt: Date;
-  lastLoginAt: Date;
+  id: string;
+  name: string;
 };
 
 export type Tag = {
@@ -26,12 +20,49 @@ export type Post = {
   createdAt: Date;
 };
 
-export type CreatePostDto = {
-  content: string;
-  tagIds: string[];
+export type PostsListResponse = {
+  items: Post[];
+  nextCursor?: string;
+  total?: number;
 };
 
-export type UpdatePostDto = {
-  content?: string;
+export type TagsListResponse = {
+  items: Tag[];
+};
+
+export type AuthResponse = {
+  user: User;
+};
+
+export type SuccessResponse = {
+  success: boolean;
+};
+
+export type SignUpRequest = {
+  name: string;
+  password: string;
+};
+
+export type SignInRequest = {
+  name: string;
+  password: string;
+};
+
+export type CreatePostRequest = {
+  content: string;
   tagIds?: string[];
+  tagNames?: string[];
+};
+
+export type GetPostsQuery = {
+  authorIds?: string;
+  tagIds?: string;
+  limit?: number;
+  cursor?: string;
+  sort?: 'asc' | 'desc';
+};
+
+export type GetTagsQuery = {
+  search?: string;
+  limit?: number;
 };
