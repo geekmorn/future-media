@@ -39,7 +39,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={inputType}
             className={cn(
-              "w-full bg-[#1a1a1a] border border-transparent rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none focus:ring-2 focus:ring-[#7c34f8] focus:border-transparent transition-colors",
+              "w-full bg-[#1a1a1a] border border-transparent rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none focus:ring-2 focus:ring-[#9747ff] focus:border-transparent transition-colors",
               error && "border-red-500 focus:ring-red-500",
               className
             )}

@@ -208,13 +208,13 @@ export function TagInput({
               onBlur={handleInputBlur}
               onKeyDown={handleKeyDown}
               placeholder="Add a tag"
-              className="bg-transparent border-none outline-none text-[#7c34f8] text-[16px] font-medium leading-[24px] placeholder:text-[#7c34f8] focus:ring-0 w-[120px]"
+              className="bg-transparent border-none outline-none text-[#9747ff] text-[16px] font-medium leading-[24px] placeholder:text-[#9747ff] focus:ring-0 w-[120px]"
             />
           ) : (
             <button
               type="button"
               onClick={handleShowInput}
-              className="text-[#7c34f8] text-[16px] font-medium leading-[24px] hover:underline cursor-pointer"
+              className="text-[#9747ff] text-[14px] font-normal leading-[20px] underline decoration-solid underline-offset-2 cursor-pointer hover:text-[#b777ff] transition-colors"
             >
               Add a tag
             </button>

@@ -92,3 +92,33 @@ export async function signUp(
   }
 }
 
+interface SignOutResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function signOut(): Promise<SignOutResponse> {
+  try {
+    const response = await fetch("/api/auth/sign-out", {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      return {
+        success: false,
+        error: data.error || "Failed to sign out",
+      };
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: "Network error. Please try again.",
+    };
+  }
+}
+

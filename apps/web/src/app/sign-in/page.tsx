@@ -37,7 +37,7 @@ export default function SignInPage() {
               </span>
               <Link
                 href="/sign-up"
-                className="font-medium text-[#7c34f8] underline decoration-solid underline-offset-2 hover:text-[#6b2de6] transition-colors"
+                className="font-medium text-[#9747ff] underline decoration-solid underline-offset-2 hover:text-[#b777ff] transition-colors"
               >
                 Sign up
               </Link>

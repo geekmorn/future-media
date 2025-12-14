@@ -1,6 +1,12 @@
 import type { Post, Tag } from "@repo/types";
 
-export const CURRENT_USER = {
+export interface User {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export const CURRENT_USER: User = {
   id: "user-1",
   name: "Makar B.",
   color: "#7c34f8",
@@ -306,6 +312,27 @@ export const MOCK_POSTS: Post[] = [
     createdAt: new Date("2024-12-05T10:00:00"),
   },
 ];
+
+// Get all unique users from posts
+export function getAllUsers(): User[] {
+  const usersMap = new Map<string, User>();
+  
+  // Add current user
+  usersMap.set(CURRENT_USER.id, CURRENT_USER);
+  
+  // Add all users from posts
+  MOCK_POSTS.forEach((post) => {
+    if (!usersMap.has(post.authorId)) {
+      usersMap.set(post.authorId, {
+        id: post.authorId,
+        name: post.authorName,
+        color: post.authorColor,
+      });
+    }
+  });
+  
+  return Array.from(usersMap.values());
+}
 
 // Create a new post
 export function createPost(content: string, tags: Tag[]): Post {

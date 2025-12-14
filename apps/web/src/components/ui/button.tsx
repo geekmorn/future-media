@@ -1,8 +1,10 @@
+"use client";
+
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "ghost" | "icon";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
@@ -21,19 +23,30 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+      "inline-flex items-center justify-center font-medium rounded-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none";
 
     const variants = {
       primary:
-        "bg-[#7c34f8] text-white hover:bg-[#6b2de6] active:bg-[#5a26d4]",
+        "bg-[#9747ff] text-white hover:bg-[#8a3dee] active:bg-[#7c34e0] disabled:bg-[#353535] disabled:opacity-60",
       secondary:
-        "bg-[#212121] border border-[rgba(255,255,255,0.2)] text-white hover:bg-[#2a2a2a] active:bg-[#333333]",
+        "bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50",
+      ghost:
+        "bg-transparent text-white hover:bg-[rgba(255,255,255,0.1)] active:bg-[rgba(255,255,255,0.15)] disabled:opacity-50",
+      icon:
+        "bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50 rounded-[12px]",
     };
 
     const sizes = {
       sm: "h-[36px] px-5 text-[14px] leading-[20px]",
-      md: "h-[48px] px-6 text-[16px] leading-[24px]",
-      lg: "h-[56px] px-8 text-[18px] leading-[28px]",
+      md: "h-[40px] px-6 text-[16px] leading-[24px]",
+      lg: "h-[48px] px-6 text-[16px] leading-[24px]",
+    };
+
+    // Icon variant has different sizing
+    const iconSizes = {
+      sm: "size-[36px] p-[8px]",
+      md: "size-[48px] p-[12px]",
+      lg: "size-[56px] p-[16px]",
     };
 
     return (
@@ -42,7 +55,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           baseStyles,
           variants[variant],
-          sizes[size],
+          variant === "icon" ? iconSizes[size] : sizes[size],
           className
         )}
         disabled={disabled || isLoading}

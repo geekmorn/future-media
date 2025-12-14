@@ -2,40 +2,72 @@
 
 import { useState, useMemo } from "react";
 import type { Post, Tag } from "@repo/types";
-import { PostsTabs, type PostsFilter } from "@/components/posts/posts-tabs";
 import { PostsHeader } from "@/components/posts/posts-header";
 import { PostsList } from "@/components/posts/posts-list";
 import { CreatePostModal } from "@/components/posts/create-post-modal";
 import {
+  FilterModal,
+  type FilterState,
+} from "@/components/posts/filter-modal";
+import {
   MOCK_POSTS,
   CURRENT_USER,
   getAllTags,
+  getAllUsers,
   createTag,
   createPost,
 } from "@/lib/mock/posts";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<PostsFilter>("all");
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    usernames: [],
+    tags: [],
+  });
 
-  const filteredPosts = useMemo(
-    () =>
-      activeTab === "my"
-        ? posts.filter((post) => post.authorId === CURRENT_USER.id)
-        : posts,
-    [posts, activeTab]
-  );
+  const filteredPosts = useMemo(() => {
+    let result = posts;
+
+    // Filter by usernames
+    if (activeFilters.usernames.length > 0) {
+      result = result.filter((post) =>
+        activeFilters.usernames.includes(post.authorName)
+      );
+    }
+
+    // Filter by tags
+    if (activeFilters.tags.length > 0) {
+      result = result.filter((post) =>
+        post.tags.some((tag) => activeFilters.tags.includes(tag.name))
+      );
+    }
+
+    return result;
+  }, [posts, activeFilters]);
 
   const availableTags = useMemo(() => getAllTags(), []);
-
-  const handleSearchClick = () => {
-    // TODO: Implement search
-  };
+  const availableUsers = useMemo(() => getAllUsers(), []);
 
   const handleFilterClick = () => {
-    // TODO: Implement filter
+    setIsFilterModalOpen(true);
   };
+
+  const handleCloseFilterModal = () => {
+    setIsFilterModalOpen(false);
+  };
+
+  const handleApplyFilters = (filters: FilterState) => {
+    setActiveFilters(filters);
+  };
+
+  const handleResetFilter = () => {
+    setActiveFilters({ usernames: [], tags: [] });
+  };
+
+  const isFilterActive =
+    activeFilters.usernames.length > 0 || activeFilters.tags.length > 0;
 
   const handleCreateClick = () => {
     setIsModalOpen(true);
@@ -55,27 +87,24 @@ export default function Home() {
       {/* Purple glow effect */}
       <div className="absolute bg-[#7c34f8] blur-[100px] h-[14px] left-1/2 top-[68px] -translate-x-1/2 w-[740px] pointer-events-none" />
 
-      {/* Header with tabs - fixed */}
-      <header className="bg-[#111] border-b border-[rgba(255,255,255,0.2)] h-[68px] w-full shrink-0 z-10">
-        <div className="flex h-full items-center justify-center">
-          <PostsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
-      </header>
-
       {/* Main content - scrollable */}
-      <main className="flex-1 flex justify-center pt-[32px] px-4 overflow-hidden">
-        <div className="backdrop-blur-[100px] bg-[rgba(0,0,0,0.03)] flex flex-col w-full max-w-[643px] rounded-[16px] overflow-hidden">
-          {/* Posts header - fixed within container */}
+      <main className="flex-1 flex flex-col items-center px-4 overflow-y-auto">
+        {/* Posts header - sticky */}
+        <div className="sticky top-0 z-10 w-full max-w-[643px] pt-[32px]">
           <PostsHeader
             userName={CURRENT_USER.name}
             userColor={CURRENT_USER.color}
-            onSearchClick={handleSearchClick}
             onFilterClick={handleFilterClick}
             onCreateClick={handleCreateClick}
+            isFilterActive={isFilterActive}
+            onResetFilter={handleResetFilter}
           />
+        </div>
 
-          {/* Posts list - scrollable */}
-          <div className="flex-1 flex flex-col px-[16px] py-[24px] overflow-y-auto">
+        {/* Posts container */}
+        <div className="flex flex-col w-full max-w-[643px] h-fit">
+          {/* Posts list */}
+          <div className="flex flex-col px-[16px] py-[24px]">
             <PostsList posts={filteredPosts} />
           </div>
         </div>
@@ -90,6 +119,16 @@ export default function Home() {
         userColor={CURRENT_USER.color}
         availableTags={availableTags}
         onCreateTag={createTag}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={handleCloseFilterModal}
+        onApply={handleApplyFilters}
+        availableUsers={availableUsers}
+        availableTags={availableTags}
+        initialFilters={activeFilters}
       />
     </div>
   );

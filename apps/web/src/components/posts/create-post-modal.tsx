@@ -6,7 +6,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "./tag-input";
 import { CloseIcon } from "@/components/icons";
-import { cn } from "@/lib/utils";
 
 export interface CreatePostModalProps {
   isOpen: boolean;
@@ -98,6 +97,8 @@ export function CreatePostModal({
     onClose();
   };
 
+  const isValid = content.trim() && content.length <= MAX_CONTENT_LENGTH;
+
   if (!isOpen) return null;
 
   return (
@@ -115,95 +116,75 @@ export function CreatePostModal({
       {/* Modal */}
       <div
         ref={modalRef}
-        className="relative z-10 w-full max-w-[520px] bg-[#1a1a1a] border border-[rgba(255,255,255,0.2)] rounded-[16px] shadow-lg"
+        className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px] overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[rgba(255,255,255,0.1)]">
-          <h2 className="text-[24px] font-medium leading-[28px] text-white">
+        <div className="relative flex items-center justify-center h-[52px] px-4 border-b border-[rgba(255,255,255,0.2)]">
+          <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
             Create a new post
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-white hover:text-[rgba(255,255,255,0.8)] transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-[8px] rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors"
             aria-label="Close modal"
           >
-            <CloseIcon className="size-6" />
+            <CloseIcon className="size-6 text-white" />
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="flex flex-col gap-4">
-            {/* User info and tag input */}
-            <div className="flex items-center gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8 px-4 pt-6 pb-6">
+          {/* Content area */}
+          <div className="flex gap-2 items-start">
+            {/* Avatar and vertical line */}
+            <div className="flex flex-col gap-4 items-center">
               <Avatar name={userName} color={userColor} size="md" />
-              <div className="flex-1 flex flex-col gap-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[16px] font-medium leading-[24px] text-white">
-                    {userName}
-                  </span>
-                  <TagInput
-                    selectedTags={selectedTags}
-                    availableTags={availableTags}
-                    onTagsChange={setSelectedTags}
-                    onCreateTag={onCreateTag}
-                    maxTags={5}
-                    maxTagLength={12}
-                  />
-                </div>
-              </div>
+              <div className="flex-1 w-px bg-[rgba(255,255,255,0.2)]" />
             </div>
 
-            {/* Content textarea */}
-            <div className="flex flex-col gap-2">
+            {/* Content */}
+            <div className="flex-1 flex flex-col gap-2">
+              {/* User info and tag input */}
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-medium leading-[20px] text-white">
+                  {userName}
+                </span>
+                <TagInput
+                  selectedTags={selectedTags}
+                  availableTags={availableTags}
+                  onTagsChange={setSelectedTags}
+                  onCreateTag={onCreateTag}
+                  maxTags={5}
+                  maxTagLength={12}
+                />
+              </div>
+
+              {/* Textarea */}
               <textarea
                 ref={textareaRef}
                 value={content}
                 onChange={handleContentChange}
                 placeholder="What do you want to share today?"
-                rows={6}
-                className={cn(
-                  "w-full bg-[#1a1a1a] rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none transition-colors resize-none"
-                )}
+                rows={3}
+                className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[rgba(255,255,255,0.6)] placeholder:text-[rgba(255,255,255,0.6)] focus:outline-none resize-none"
               />
               {error && (
                 <p className="text-[12px] leading-[16px] text-red-500">
                   {error}
                 </p>
               )}
-              <div className="flex items-center justify-end">
-                <span
-                  className={cn(
-                    "text-[12px] leading-[16px]",
-                    content.length > MAX_CONTENT_LENGTH
-                      ? "text-red-500"
-                      : "text-[rgba(255,255,255,0.6)]"
-                  )}
-                >
-                  {content.length}/{MAX_CONTENT_LENGTH}
-                </span>
-              </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-[rgba(255,255,255,0.1)]">
-            {(content.trim() || selectedTags.length > 0) && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-                size="md"
-              >
-                Cancel
-              </Button>
-            )}
+          <div className="flex items-center justify-end">
             <Button
               type="submit"
-              variant="secondary"
+              variant="primary"
               size="md"
-              disabled={!content.trim() || content.length > MAX_CONTENT_LENGTH}
+              disabled={!isValid}
+              className="w-[182px]"
             >
               Upload
             </Button>
