@@ -28,7 +28,7 @@ import {
   PostsListResponseDto,
 } from './dto';
 import { Public, CurrentUser } from '../../common/decorators';
-import type { JwtPayload } from '../../common/decorators';
+import type { JwtPayload } from '../../common/types';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -40,11 +40,16 @@ export class PostsController {
   @ApiOperation({ summary: 'Get posts with optional filters' })
   @ApiQuery({ name: 'authorIds', required: false, description: 'Comma-separated author IDs' })
   @ApiQuery({ name: 'tagIds', required: false, description: 'Comma-separated tag IDs' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of posts (10-50)' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of posts (10-50)',
+  })
   @ApiQuery({ name: 'cursor', required: false, description: 'Cursor for pagination' })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'], description: 'Sort order' })
   @ApiResponse({ status: 200, description: 'List of posts', type: PostsListResponseDto })
-  async findAll(@Query() query: GetPostsQueryDto): Promise<PostsListResponseDto> {
+  findAll(@Query() query: GetPostsQueryDto): Promise<PostsListResponseDto> {
     return this.postsService.findAll(query);
   }
 
@@ -55,10 +60,7 @@ export class PostsController {
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 401, description: 'Not authenticated' })
   @ApiResponse({ status: 404, description: 'Some tags not found' })
-  async create(
-    @Body() dto: CreatePostDto,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<PostResponseDto> {
+  create(@Body() dto: CreatePostDto, @CurrentUser() user: JwtPayload): Promise<PostResponseDto> {
     return this.postsService.create(dto, user.sub);
   }
 
@@ -71,7 +73,7 @@ export class PostsController {
   @ApiResponse({ status: 401, description: 'Not authenticated' })
   @ApiResponse({ status: 403, description: 'Not authorized to edit this post' })
   @ApiResponse({ status: 404, description: 'Post not found' })
-  async update(
+  update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdatePostDto,
     @CurrentUser() user: JwtPayload,
@@ -88,10 +90,7 @@ export class PostsController {
   @ApiResponse({ status: 401, description: 'Not authenticated' })
   @ApiResponse({ status: 403, description: 'Not authorized to delete this post' })
   @ApiResponse({ status: 404, description: 'Post not found' })
-  async delete(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<void> {
+  delete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload): Promise<void> {
     return this.postsService.delete(id, user.sub);
   }
 }

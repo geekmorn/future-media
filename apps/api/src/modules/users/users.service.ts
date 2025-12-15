@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { UserEntity } from '../../entities';
+import { UserWithColorDto } from '../../common/dto';
 import { GetUsersQueryDto, UsersListResponseDto } from './dto';
 
 @Injectable()
@@ -23,11 +24,15 @@ export class UsersService {
     });
 
     return {
-      items: users.map((user) => ({
+      items: users.map((user) => this.mapToDto(user)),
+    };
+  }
+
+  private mapToDto(user: UserEntity): UserWithColorDto {
+    return {
         id: user.id,
         name: user.name,
         color: user.color,
-      })),
     };
   }
 }

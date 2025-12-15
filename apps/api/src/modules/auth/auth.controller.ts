@@ -18,12 +18,12 @@ import {
 } from '@nestjs/swagger';
 import type { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { AuthService, TokenPair } from './auth.service';
+import { AuthService } from './auth.service';
 import { SignUpDto, SignInDto, AuthResponseDto, SuccessResponseDto } from './dto';
 import { GoogleAuthGuard, JwtRefreshGuard } from './guards';
-import { GoogleProfile } from './strategies';
 import { Public, CurrentUser } from '../../common/decorators';
-import type { JwtPayload } from '../../common/decorators';
+import { TOKEN_EXPIRATION } from '../../common/constants';
+import type { JwtPayload, TokenPair, GoogleProfile } from '../../common/types';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -32,29 +32,6 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
-
-  private setAuthCookies(res: Response, tokens: TokenPair): void {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
-
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
-
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-  }
-
-  private clearAuthCookies(res: Response): void {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-  }
 
   @Public()
   @Post('sign-up')
@@ -111,7 +88,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Sign out and clear cookies' })
   @ApiCookieAuth()
   @ApiResponse({ status: 200, description: 'Signed out', type: SuccessResponseDto })
-  async signOut(@Res({ passthrough: true }) res: Response): Promise<SuccessResponseDto> {
+  signOut(@Res({ passthrough: true }) res: Response): SuccessResponseDto {
     this.clearAuthCookies(res);
     return { success: true };
   }
@@ -131,24 +108,42 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Start Google OAuth flow' })
   @ApiResponse({ status: 302, description: 'Redirect to Google' })
-  googleStart(): void {
-    // Guard handles the redirect
-  }
+  googleStart(): void {}
 
   @Public()
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
   @ApiResponse({ status: 302, description: 'Redirect to web app' })
-  async googleRedirect(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<void> {
+  async googleRedirect(@Req() req: Request, @Res() res: Response): Promise<void> {
     const googleProfile = req.user as GoogleProfile;
     const result = await this.authService.handleGoogleAuth(googleProfile);
     this.setAuthCookies(res, result.tokens);
 
     const webUrl = this.configService.get<string>('WEB_URL') ?? 'http://localhost:3000';
     res.redirect(webUrl);
+  }
+
+  private setAuthCookies(res: Response, tokens: TokenPair): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
+    res.cookie('accessToken', tokens.accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: TOKEN_EXPIRATION.ACCESS_TOKEN_MS,
+    });
+
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: TOKEN_EXPIRATION.REFRESH_TOKEN_MS,
+    });
+  }
+
+  private clearAuthCookies(res: Response): void {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
   }
 }

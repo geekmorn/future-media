@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,29 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../entities';
 import { SignUpDto, SignInDto } from './dto';
-import { GoogleProfile } from './strategies';
-
-export interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface AuthUser {
-  id: string;
-  name: string;
-}
-
-const AVATAR_COLORS = [
-  '#ef4444',
-  '#f97316',
-  '#eab308',
-  '#22c55e',
-  '#14b8a6',
-  '#3b82f6',
-  '#6366f1',
-  '#a855f7',
-  '#ec4899',
-];
+import { AVATAR_COLORS, TOKEN_EXPIRATION } from '../../common/constants';
+import type { TokenPair, AuthUser, GoogleProfile } from '../../common/types';
 
 @Injectable()
 export class AuthService {
@@ -42,10 +17,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-
-  private getRandomColor(): string {
-    return AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-  }
 
   async signUp(dto: SignUpDto): Promise<{ user: AuthUser; tokens: TokenPair }> {
     const existingUser = await this.userRepository.findOne({
@@ -65,7 +36,6 @@ export class AuthService {
     });
 
     await this.userRepository.save(user);
-
     const tokens = await this.generateTokens(user);
 
     return {
@@ -98,9 +68,7 @@ export class AuthService {
   }
 
   async refresh(userId: string): Promise<TokenPair> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -110,9 +78,7 @@ export class AuthService {
   }
 
   async getMe(userId: string): Promise<AuthUser> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -127,7 +93,6 @@ export class AuthService {
     });
 
     if (!user) {
-      // Check if user with same display name exists
       let userName = profile.displayName.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
       const existingUser = await this.userRepository.findOne({
         where: { name: userName },
@@ -155,17 +120,21 @@ export class AuthService {
     };
   }
 
+  private getRandomColor(): string {
+    return AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+  }
+
   private async generateTokens(user: UserEntity): Promise<TokenPair> {
     const payload = { sub: user.id, name: user.name };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.getOrThrow<string>('JWT_SECRET'),
-        expiresIn: '15m',
+        expiresIn: TOKEN_EXPIRATION.ACCESS_TOKEN,
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-        expiresIn: '7d',
+        expiresIn: TOKEN_EXPIRATION.REFRESH_TOKEN,
       }),
     ]);
 

@@ -14,8 +14,6 @@ import { AllExceptionsFilter } from './common/filters';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // In Docker, env variables are passed via docker-compose env_file
-      // Locally, load from root .env file
       envFilePath: process.env.NODE_ENV === 'production' ? undefined : '../../.env',
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
@@ -25,7 +23,6 @@ import { AllExceptionsFilter } from './common/filters';
       useFactory: (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL');
 
-        // Use PostgreSQL if DATABASE_URL is set, otherwise SQLite
         if (databaseUrl) {
           return {
             type: 'postgres' as const,

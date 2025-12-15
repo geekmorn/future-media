@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,13 +10,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
-  // Global prefix
   app.setGlobalPrefix('api');
-
-  // Cookie parser
   app.use(cookieParser());
 
-  // Validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -29,14 +24,12 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
   const webUrl = configService.get<string>('WEB_URL') ?? 'http://localhost:3000';
   app.enableCors({
     origin: webUrl,
     credentials: true,
   });
 
-  // Swagger
   const config = new DocumentBuilder()
     .setTitle('Future Media API')
     .setDescription('API for the Future Media social platform')
@@ -45,6 +38,7 @@ async function bootstrap() {
     .addTag('Auth', 'Authentication endpoints')
     .addTag('Posts', 'Posts management')
     .addTag('Tags', 'Tags management')
+    .addTag('Users', 'Users management')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -55,10 +49,10 @@ async function bootstrap() {
   });
 
   const port = configService.get<number>('PORT', 4050);
-
   await app.listen(port);
 
   logger.debug(`Application is running on: http://localhost:${port}`);
   logger.debug(`API Documentation: http://localhost:${port}/docs`);
 }
+
 bootstrap();

@@ -1,23 +1,21 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PAGINATION } from '../../../common/constants';
+import { PAGINATION } from '../constants';
 
-export class GetUsersQueryDto {
+export class SearchQueryDto {
   @ApiPropertyOptional({
-    description: 'Search query for user name',
-    example: 'john',
+    description: 'Search query',
+    example: 'search term',
   })
   @IsOptional()
   @IsString()
   search?: string;
 
   @ApiPropertyOptional({
-    description: `Number of users to return (1-${PAGINATION.MAX_USERS_LIMIT})`,
+    description: 'Maximum number of items to return',
     example: PAGINATION.DEFAULT_LIMIT,
     default: PAGINATION.DEFAULT_LIMIT,
-    minimum: 1,
-    maximum: PAGINATION.MAX_USERS_LIMIT,
   })
   @IsOptional()
   @Type(() => Number)
@@ -26,3 +24,4 @@ export class GetUsersQueryDto {
   @Max(PAGINATION.MAX_USERS_LIMIT)
   limit?: number = PAGINATION.DEFAULT_LIMIT;
 }
+

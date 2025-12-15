@@ -9,24 +9,9 @@ import {
   IsUUID,
   ArrayMaxSize,
   Validate,
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  ValidationArguments,
 } from 'class-validator';
-
-@ValidatorConstraint({ name: 'totalTagsLimit', async: false })
-class TotalTagsLimitConstraint implements ValidatorConstraintInterface {
-  validate(_value: unknown, args: ValidationArguments) {
-    const object = args.object as CreatePostDto;
-    const tagIdsCount = object.tagIds?.length ?? 0;
-    const tagNamesCount = object.tagNames?.length ?? 0;
-    return tagIdsCount + tagNamesCount <= 5;
-  }
-
-  defaultMessage() {
-    return 'Total number of tags (tagIds + tagNames) must not exceed 5';
-  }
-}
+import { TotalTagsLimitConstraint } from '../../../common/validators';
+import { PAGINATION } from '../../../common/constants';
 
 export class CreatePostDto {
   @ApiProperty({
@@ -49,7 +34,7 @@ export class CreatePostDto {
   @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
-  @ArrayMaxSize(5)
+  @ArrayMaxSize(PAGINATION.MAX_TAGS_PER_POST)
   @Validate(TotalTagsLimitConstraint)
   tagIds?: string[];
 
@@ -62,6 +47,6 @@ export class CreatePostDto {
   @IsArray()
   @IsString({ each: true })
   @MaxLength(12, { each: true })
-  @ArrayMaxSize(5)
+  @ArrayMaxSize(PAGINATION.MAX_TAGS_PER_POST)
   tagNames?: string[];
 }

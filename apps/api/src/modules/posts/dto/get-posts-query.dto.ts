@@ -1,14 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsOptional,
-  IsString,
-  IsInt,
-  Min,
-  Max,
-  IsEnum,
-  IsUUID,
-} from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsEnum, IsUUID } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
+import { PAGINATION } from '../../../common/constants';
 
 export enum SortOrder {
   ASC = 'asc',
@@ -39,18 +32,18 @@ export class GetPostsQueryDto {
   tagIds?: string[];
 
   @ApiPropertyOptional({
-    description: 'Number of posts to return (10-50)',
-    example: 20,
-    default: 20,
-    minimum: 10,
-    maximum: 50,
+    description: `Number of posts to return (${PAGINATION.MIN_POSTS_LIMIT}-${PAGINATION.MAX_POSTS_LIMIT})`,
+    example: PAGINATION.DEFAULT_LIMIT,
+    default: PAGINATION.DEFAULT_LIMIT,
+    minimum: PAGINATION.MIN_POSTS_LIMIT,
+    maximum: PAGINATION.MAX_POSTS_LIMIT,
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(10)
-  @Max(50)
-  limit?: number = 20;
+  @Min(PAGINATION.MIN_POSTS_LIMIT)
+  @Max(PAGINATION.MAX_POSTS_LIMIT)
+  limit?: number = PAGINATION.DEFAULT_LIMIT;
 
   @ApiPropertyOptional({
     description: 'Cursor for pagination (post ID)',
