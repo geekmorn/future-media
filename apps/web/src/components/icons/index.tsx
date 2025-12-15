@@ -92,3 +92,17 @@ export function CheckIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function MoreHorizontalIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={cn("size-5", className)}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
+  );
+}

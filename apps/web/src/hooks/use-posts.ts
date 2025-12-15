@@ -2,7 +2,15 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { Post } from "@repo/types";
-import { getPosts, createPost as createPostApi, type GetPostsParams, type CreatePostParams } from "@/lib/api/posts";
+import {
+  getPosts,
+  createPost as createPostApi,
+  updatePost as updatePostApi,
+  deletePost as deletePostApi,
+  type GetPostsParams,
+  type CreatePostParams,
+  type UpdatePostParams,
+} from "@/lib/api/posts";
 
 export interface UsePostsOptions {
   authorIds?: string[];
@@ -19,6 +27,8 @@ export interface UsePostsReturn {
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
   createPost: (params: CreatePostParams) => Promise<Post>;
+  updatePost: (id: string, params: UpdatePostParams) => Promise<Post>;
+  deletePost: (id: string) => Promise<void>;
 }
 
 export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
@@ -95,6 +105,21 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
     return newPost;
   }, []);
 
+  const updatePost = useCallback(async (id: string, params: UpdatePostParams): Promise<Post> => {
+    const updatedPost = await updatePostApi(id, params);
+    // Update the post in the list
+    setPosts((prev) =>
+      prev.map((post) => (post.id === id ? updatedPost : post))
+    );
+    return updatedPost;
+  }, []);
+
+  const deletePost = useCallback(async (id: string): Promise<void> => {
+    await deletePostApi(id);
+    // Remove the post from the list
+    setPosts((prev) => prev.filter((post) => post.id !== id));
+  }, []);
+
   // Initial load
   useEffect(() => {
     loadInitial();
@@ -117,5 +142,7 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
     loadMore,
     refresh,
     createPost,
+    updatePost,
+    deletePost,
   };
 }

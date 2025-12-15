@@ -25,6 +25,8 @@ export default function Home() {
     hasMore,
     loadMore,
     createPost,
+    updatePost,
+    deletePost,
   } = usePosts({
     authorIds: activeFilters.userIds.length > 0 ? activeFilters.userIds : undefined,
     tagIds: activeFilters.tagIds.length > 0 ? activeFilters.tagIds : undefined,
@@ -89,6 +91,42 @@ export default function Home() {
     [createPost],
   );
 
+  const handleUpdatePost = useCallback(
+    async (id: string, content: string, tags: Tag[]) => {
+      try {
+        // Separate existing tags (have UUID) from new tags (have custom IDs)
+        const existingTagIds = tags
+          .filter((tag) => tag.id.match(/^[0-9a-f-]{36}$/i))
+          .map((tag) => tag.id);
+        const newTagNames = tags
+          .filter((tag) => !tag.id.match(/^[0-9a-f-]{36}$/i))
+          .map((tag) => tag.name);
+
+        await updatePost(id, {
+          content,
+          tagIds: existingTagIds.length > 0 ? existingTagIds : undefined,
+          tagNames: newTagNames.length > 0 ? newTagNames : undefined,
+        });
+      } catch (error) {
+        console.error('Failed to update post:', error);
+        throw error;
+      }
+    },
+    [updatePost],
+  );
+
+  const handleDeletePost = useCallback(
+    async (id: string) => {
+      try {
+        await deletePost(id);
+      } catch (error) {
+        console.error('Failed to delete post:', error);
+        throw error;
+      }
+    },
+    [deletePost],
+  );
+
   // Create tag handler for the modal (creates temporary tag object)
   const handleCreateTag = useCallback((name: string): Tag => {
     return {
@@ -148,6 +186,11 @@ export default function Home() {
                 posts={posts}
                 isLoadingMore={isLoadingMore}
                 lastElementRef={lastElementRef}
+                currentUserId={user.id}
+                availableTags={availableTags}
+                onCreateTag={handleCreateTag}
+                onUpdatePost={handleUpdatePost}
+                onDeletePost={handleDeletePost}
               />
             )}
           </div>

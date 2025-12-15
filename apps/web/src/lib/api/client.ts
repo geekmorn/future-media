@@ -56,6 +56,10 @@ export async function apiClient<T>(url: string, options: ApiClientOptions = {}):
       const retryResponse = await fetch(url, fetchOptions);
 
       if (retryResponse.ok) {
+        // Handle 204 No Content
+        if (retryResponse.status === 204) {
+          return undefined as T;
+        }
         return retryResponse.json();
       }
 
@@ -71,6 +75,11 @@ export async function apiClient<T>(url: string, options: ApiClientOptions = {}):
       // Refresh failed
       throw new Error('Session expired');
     }
+  }
+
+  // Handle 204 No Content
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   // For non-401 errors or successful responses
