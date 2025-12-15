@@ -2,7 +2,7 @@
  * API client with automatic 401 handling:
  * 1. On 401 - attempt to refresh token
  * 2. If refresh succeeds - retry the original request
- * 3. If refresh fails - redirect to sign-in
+ * 3. If refresh fails - throw error (auth-context handles redirect)
  */
 
 let isRefreshing = false;
@@ -10,8 +10,8 @@ let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshToken(): Promise<boolean> {
   try {
-    const response = await fetch("/api/auth/refresh", {
-      method: "POST",
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
     });
 
     return response.ok;
@@ -38,19 +38,11 @@ async function handleRefresh(): Promise<boolean> {
   }
 }
 
-function redirectToSignIn(): void {
-  // Clear any stale state and redirect
-  window.location.href = "/sign-in";
-}
-
 export interface ApiClientOptions extends RequestInit {
   skipAuthRetry?: boolean;
 }
 
-export async function apiClient<T>(
-  url: string,
-  options: ApiClientOptions = {}
-): Promise<T> {
+export async function apiClient<T>(url: string, options: ApiClientOptions = {}): Promise<T> {
   const { skipAuthRetry, ...fetchOptions } = options;
 
   const response = await fetch(url, fetchOptions);
@@ -67,19 +59,17 @@ export async function apiClient<T>(
         return retryResponse.json();
       }
 
-      // If still 401 after refresh, redirect
+      // If still 401 after refresh, throw error
       if (retryResponse.status === 401) {
-        redirectToSignIn();
-        throw new Error("Session expired");
+        throw new Error('Session expired');
       }
 
       // Handle other errors
       const data = await retryResponse.json();
-      throw new Error(data.error || "Request failed");
+      throw new Error(data.error || 'Request failed');
     } else {
-      // Refresh failed, redirect to sign-in
-      redirectToSignIn();
-      throw new Error("Session expired");
+      // Refresh failed
+      throw new Error('Session expired');
     }
   }
 
@@ -87,7 +77,7 @@ export async function apiClient<T>(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Request failed");
+    throw new Error(data.error || 'Request failed');
   }
 
   return data;

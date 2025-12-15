@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useCallback } from "react";
-import type { Tag } from "@repo/types";
-import { useAuth } from "@/lib/auth";
-import { usePosts, useTags, useUsers, useInfiniteScroll } from "@/hooks";
-import { PostsHeader } from "@/components/posts/posts-header";
-import { PostsList } from "@/components/posts/posts-list";
-import { CreatePostModal } from "@/components/posts/create-post-modal";
-import { FilterModal, type FilterState } from "@/components/posts/filter-modal";
+import { useState, useCallback } from 'react';
+import type { Tag } from '@repo/types';
+import { useAuth } from '@/lib/auth';
+import { usePosts, useTags, useUsers, useInfiniteScroll } from '@/hooks';
+import { PostsHeader } from '@/components/posts/posts-header';
+import { PostsList } from '@/components/posts/posts-list';
+import { CreatePostModal } from '@/components/posts/create-post-modal';
+import { FilterModal, type FilterState } from '@/components/posts/filter-modal';
 
 export default function Home() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -56,8 +56,7 @@ export default function Home() {
     setActiveFilters({ userIds: [], tagIds: [] });
   };
 
-  const isFilterActive =
-    activeFilters.userIds.length > 0 || activeFilters.tagIds.length > 0;
+  const isFilterActive = activeFilters.userIds.length > 0 || activeFilters.tagIds.length > 0;
 
   const handleCreateClick = () => {
     setIsModalOpen(true);
@@ -84,10 +83,10 @@ export default function Home() {
           tagNames: newTagNames.length > 0 ? newTagNames : undefined,
         });
       } catch (error) {
-        console.error("Failed to create post:", error);
+        console.error('Failed to create post:', error);
       }
     },
-    [createPost]
+    [createPost],
   );
 
   // Create tag handler for the modal (creates temporary tag object)
@@ -107,7 +106,7 @@ export default function Home() {
     );
   }
 
-  // User should always exist here due to middleware protection
+  // Auth-context handles redirect to sign-in
   if (!user) {
     return null;
   }
@@ -123,7 +122,7 @@ export default function Home() {
         <div className="sticky top-0 z-10 w-full max-w-[643px] pt-[32px]">
           <PostsHeader
             userName={user.name}
-            userColor={user.color ?? "#6366f1"}
+            userColor={user.color ?? '#6366f1'}
             onFilterClick={handleFilterClick}
             onCreateClick={handleCreateClick}
             isFilterActive={isFilterActive}
@@ -161,7 +160,7 @@ export default function Home() {
         onClose={handleCloseModal}
         onSubmit={handleSubmitPost}
         userName={user.name}
-        userColor={user.color ?? "#6366f1"}
+        userColor={user.color ?? '#6366f1'}
         availableTags={availableTags}
         onCreateTag={handleCreateTag}
       />
