@@ -5,12 +5,17 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: future-media-api
     ports:
-      - "4050:4050"
+      - "${PORT:-4050}:${PORT:-4050}"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - DATABASE_PATH=/app/data/database.sqlite
+    volumes:
+      - api-data:/app/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4050"]
+      test: [ "CMD-SHELL", "node -e \"require('http').get('http://localhost:' + (process.env.PORT || 4050) + '/api/tags', (r) => process.exit(r.statusCode === 200 ? 0 : 1))\"" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -23,16 +28,22 @@ services:
     container_name: future-media-web
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - PORT=3000
+      - API_URL=http://api:${PORT:-4050}/api
     depends_on:
       api:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: [ "CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/sign-in', (r) => process.exit(r.statusCode === 200 ? 0 : 1))\"" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
+volumes:
+  api-data:

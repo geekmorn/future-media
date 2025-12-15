@@ -1,10 +1,13 @@
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 FROM base AS deps
+
+# Install build dependencies for native modules (better-sqlite3)
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json ./apps/api/
@@ -13,6 +16,9 @@ COPY packages/tsconfig/package.json ./packages/tsconfig/
 COPY packages/types/package.json ./packages/types/
 
 RUN pnpm install --frozen-lockfile
+
+# Force rebuild of better-sqlite3 native module
+RUN cd /app/node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 && npm run build-release
 
 FROM base AS builder
 
@@ -29,10 +35,13 @@ FROM base AS runner
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nestjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nestjs
 
 WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json ./apps/api/
@@ -42,10 +51,21 @@ COPY packages/types/package.json ./packages/types/
 
 RUN pnpm install --frozen-lockfile --prod
 
+# Force rebuild of better-sqlite3 native module
+RUN cd /app/node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 && npm run build-release
+
+# Clean up build dependencies
+RUN apt-get purge -y python3 make g++ && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+# Create data directory for SQLite and set permissions
+RUN mkdir -p /app/data && chown -R nestjs:nodejs /app/data
 
 USER nestjs
 
-EXPOSE 3000
+# Default port (can be overridden by PORT env variable)
+ENV PORT=4050
+EXPOSE ${PORT}
 
 CMD ["node", "apps/api/dist/main"]
