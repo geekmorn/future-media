@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, ILike } from 'typeorm';
 import { PostEntity, TagEntity } from '../../entities';
 import {
   CreatePostDto,
+  UpdatePostDto,
   GetPostsQueryDto,
   PostResponseDto,
   PostsListResponseDto,
@@ -138,6 +143,104 @@ export class PostsService {
       items: posts.map((post) => this.mapToResponse(post)),
       nextCursor,
     };
+  }
+
+  async findOne(id: string): Promise<PostEntity | null> {
+    return this.postRepository.findOne({
+      where: { id },
+      relations: ['author', 'tags'],
+    });
+  }
+
+  async update(
+    id: string,
+    dto: UpdatePostDto,
+    userId: string,
+  ): Promise<PostResponseDto> {
+    const post = await this.findOne(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only edit your own posts');
+    }
+
+    // Update content if provided
+    if (dto.content !== undefined) {
+      post.content = dto.content;
+    }
+
+    // Update tags if any tag-related field is provided
+    if (dto.tagIds !== undefined || dto.tagNames !== undefined) {
+      const tags: TagEntity[] = [];
+
+      // Get existing tags by IDs
+      if (dto.tagIds?.length) {
+        const existingTags = await this.tagRepository.findBy({
+          id: In(dto.tagIds),
+        });
+
+        if (existingTags.length !== dto.tagIds.length) {
+          throw new NotFoundException('Some tags not found');
+        }
+
+        tags.push(...existingTags);
+      }
+
+      // Create or get tags by names
+      if (dto.tagNames?.length) {
+        for (const tagName of dto.tagNames) {
+          const normalizedName = tagName.trim().toLowerCase();
+
+          if (!normalizedName) continue;
+
+          let tag = await this.tagRepository.findOne({
+            where: { name: ILike(normalizedName) },
+          });
+
+          if (!tag) {
+            tag = this.tagRepository.create({ name: normalizedName });
+            await this.tagRepository.save(tag);
+          }
+
+          // Avoid duplicates
+          if (!tags.some((t) => t.id === tag.id)) {
+            tags.push(tag);
+          }
+        }
+      }
+
+      post.tags = tags;
+    }
+
+    await this.postRepository.save(post);
+
+    // Reload with relations
+    const updatedPost = await this.findOne(id);
+
+    if (!updatedPost) {
+      throw new NotFoundException('Post not found after update');
+    }
+
+    return this.mapToResponse(updatedPost);
+  }
+
+  async delete(id: string, userId: string): Promise<void> {
+    const post = await this.postRepository.findOne({
+      where: { id },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only delete your own posts');
+    }
+
+    await this.postRepository.remove(post);
   }
 
   private mapToResponse(post: PostEntity): PostResponseDto {

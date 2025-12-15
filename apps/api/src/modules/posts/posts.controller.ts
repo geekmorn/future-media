@@ -1,14 +1,28 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiCookieAuth,
   ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
 import {
   CreatePostDto,
+  UpdatePostDto,
   GetPostsQueryDto,
   PostResponseDto,
   PostsListResponseDto,
@@ -46,5 +60,38 @@ export class PostsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<PostResponseDto> {
     return this.postsService.create(dto, user.sub);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a post' })
+  @ApiCookieAuth()
+  @ApiParam({ name: 'id', description: 'Post ID', type: String })
+  @ApiResponse({ status: 200, description: 'Post updated', type: PostResponseDto })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
+  @ApiResponse({ status: 403, description: 'Not authorized to edit this post' })
+  @ApiResponse({ status: 404, description: 'Post not found' })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePostDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<PostResponseDto> {
+    return this.postsService.update(id, dto, user.sub);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a post' })
+  @ApiCookieAuth()
+  @ApiParam({ name: 'id', description: 'Post ID', type: String })
+  @ApiResponse({ status: 204, description: 'Post deleted' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
+  @ApiResponse({ status: 403, description: 'Not authorized to delete this post' })
+  @ApiResponse({ status: 404, description: 'Post not found' })
+  async delete(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    return this.postsService.delete(id, user.sub);
   }
 }
