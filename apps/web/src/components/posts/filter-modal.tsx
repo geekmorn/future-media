@@ -10,6 +10,7 @@ import {
   CheckIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { useModal } from "@/hooks/use-modal";
 import { cn } from "@/lib/utils";
 
 export interface FilterState {
@@ -54,7 +55,8 @@ export function FilterModal({
   const usernameDropdownRef = useRef<HTMLDivElement>(null);
   const tagDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Reset state when modal opens with initial filters
+  useModal({ isOpen, onClose });
+
   useEffect(() => {
     if (isOpen) {
       setSelectedUserIds(initialFilters?.userIds ?? []);
@@ -67,31 +69,6 @@ export function FilterModal({
     }
   }, [isOpen, initialFilters]);
 
-  // Close on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  // Handle click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -205,15 +182,12 @@ export function FilterModal({
         }
       }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" />
 
-      {/* Modal */}
       <div
         ref={modalRef}
         className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]"
       >
-        {/* Header */}
         <div className="relative flex items-center justify-center h-[64px] px-4 border-b border-[rgba(255,255,255,0.2)]">
           <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
             Sort by
@@ -228,13 +202,9 @@ export function FilterModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-4 pt-8 flex flex-col gap-6">
-          {/* Filter sections */}
           <div className="flex flex-col gap-4">
-            {/* By user name section */}
             <div className="bg-[#1a1a1a] rounded-[8px]">
-              {/* Header - collapsed state with chips */}
               {expandedSection !== "username" && (
                 <button
                   type="button"
@@ -245,7 +215,6 @@ export function FilterModal({
                     <span className="text-[16px] font-medium leading-[24px] text-white">
                       By user name
                     </span>
-                    {/* Selected chips in collapsed state */}
                     {selectedUsers.map((user) => (
                       <div
                         key={user.id}
@@ -272,10 +241,8 @@ export function FilterModal({
                 </button>
               )}
 
-              {/* Expanded state */}
               {expandedSection === "username" && (
                 <div className="flex flex-col gap-4 px-4 py-[10px]">
-                  {/* Header */}
                   <button
                     type="button"
                     onClick={() => handleToggleSection("username")}
@@ -287,7 +254,6 @@ export function FilterModal({
                     <ChevronUpIcon className="size-4 text-white shrink-0" />
                   </button>
 
-                  {/* Input field */}
                   <div className="flex flex-col gap-2">
                     <label className="text-[14px] font-medium leading-[20px] text-[rgba(255,255,255,0.8)]">
                       Enter user name
@@ -310,7 +276,6 @@ export function FilterModal({
                         )}
                       />
 
-                      {/* Dropdown */}
                       {showUsernameDropdown && filteredUsers.length > 0 && (
                         <div
                           ref={usernameDropdownRef}
@@ -350,7 +315,6 @@ export function FilterModal({
                     </div>
                   </div>
 
-                  {/* Selected chips */}
                   {selectedUsers.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {selectedUsers.map((user) => (
@@ -376,9 +340,7 @@ export function FilterModal({
               )}
             </div>
 
-            {/* By tag section */}
             <div className="bg-[#1a1a1a] rounded-[8px]">
-              {/* Header - collapsed state with chips */}
               {expandedSection !== "tag" && (
                 <button
                   type="button"
@@ -389,7 +351,6 @@ export function FilterModal({
                     <span className="text-[16px] font-medium leading-[24px] text-white">
                       By tag
                     </span>
-                    {/* Selected chips in collapsed state */}
                     {selectedTags.map((tag) => (
                       <div
                         key={tag.id}
@@ -416,10 +377,8 @@ export function FilterModal({
                 </button>
               )}
 
-              {/* Expanded state */}
               {expandedSection === "tag" && (
                 <div className="flex flex-col gap-4 px-4 py-[10px]">
-                  {/* Header */}
                   <button
                     type="button"
                     onClick={() => handleToggleSection("tag")}
@@ -431,7 +390,6 @@ export function FilterModal({
                     <ChevronUpIcon className="size-4 text-white shrink-0" />
                   </button>
 
-                  {/* Input field */}
                   <div className="flex flex-col gap-2">
                     <label className="text-[14px] font-medium leading-[20px] text-[rgba(255,255,255,0.8)]">
                       Enter tag
@@ -454,7 +412,6 @@ export function FilterModal({
                         )}
                       />
 
-                      {/* Dropdown */}
                       {showTagDropdown && filteredTags.length > 0 && (
                         <div
                           ref={tagDropdownRef}
@@ -492,7 +449,6 @@ export function FilterModal({
                     </div>
                   </div>
 
-                  {/* Selected chips */}
                   {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {selectedTags.map((tag) => (
@@ -518,7 +474,6 @@ export function FilterModal({
               )}
             </div>
 
-            {/* By date section (disabled for now) */}
             <div className="bg-[#1a1a1a] rounded-[8px]">
               <div className="flex items-center justify-between px-4 py-[10px] opacity-50 cursor-not-allowed">
                 <span className="text-[16px] font-medium leading-[24px] text-white">
@@ -529,7 +484,6 @@ export function FilterModal({
             </div>
           </div>
 
-          {/* Footer buttons */}
           <div className="flex items-center justify-end gap-3">
             {hasFilters && (
               <Button

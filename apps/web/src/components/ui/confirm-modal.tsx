@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "./button";
 import { CloseIcon } from "@/components/icons";
+import { useModal } from "@/hooks/use-modal";
 
 export interface ConfirmModalProps {
   isOpen: boolean;
@@ -27,29 +27,7 @@ export function ConfirmModal({
   isLoading = false,
   variant = "primary",
 }: ConfirmModalProps) {
-  // Close on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isLoading) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose, isLoading]);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  useModal({ isOpen, onClose, disabled: isLoading });
 
   if (!isOpen) return null;
 
@@ -62,12 +40,9 @@ export function ConfirmModal({
         }
       }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" />
 
-      {/* Modal */}
       <div className="relative z-10 w-full max-w-[400px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]">
-        {/* Header */}
         <div className="relative flex items-center justify-center h-[52px] px-4 border-b border-[rgba(255,255,255,0.2)]">
           <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
             {title}
@@ -83,13 +58,11 @@ export function ConfirmModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex flex-col gap-6 px-4 pt-6 pb-6">
           <p className="text-[14px] leading-[20px] text-[rgba(255,255,255,0.8)] text-center">
             {message}
           </p>
 
-          {/* Actions */}
           <div className="flex gap-3 justify-end">
             <Button
               type="button"

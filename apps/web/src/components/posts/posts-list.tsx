@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Post, Tag } from '@repo/types';
 import { PostCard } from './post-card';
-import { EditPostModal } from './edit-post-modal';
+import { PostFormModal } from './post-form-modal';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export interface PostsListProps {
@@ -108,19 +108,18 @@ export function PostsList({
         )}
       </div>
 
-      {/* Edit Post Modal */}
       {editingPost && onCreateTag && (
-        <EditPostModal
+        <PostFormModal
           isOpen={!!editingPost}
           onClose={handleCloseEditModal}
           onSubmit={handleSubmitEdit}
           post={editingPost}
           availableTags={availableTags}
           onCreateTag={onCreateTag}
+          mode="edit"
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={!!deletingPost}
         onClose={handleCloseDeleteModal}

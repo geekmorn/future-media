@@ -6,70 +6,72 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "./tag-input";
 import { CloseIcon } from "@/components/icons";
+import { useModal } from "@/hooks/use-modal";
 
-export interface EditPostModalProps {
+export type PostFormMode = "create" | "edit";
+
+export interface PostFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (content: string, tags: Tag[]) => void | Promise<void>;
-  post: Post;
   availableTags: Tag[];
   onCreateTag: (name: string) => Tag;
+  mode: PostFormMode;
+  post?: Post;
+  userName?: string;
+  userColor?: string;
 }
 
 const MAX_CONTENT_LENGTH = 240;
 
-export function EditPostModal({
+const MODAL_CONFIG = {
+  create: {
+    title: "Create a new post",
+    submitText: "Upload",
+    errorMessage: "Failed to create post",
+  },
+  edit: {
+    title: "Edit post",
+    submitText: "Save changes",
+    errorMessage: "Failed to update post",
+  },
+} as const;
+
+export function PostFormModal({
   isOpen,
   onClose,
   onSubmit,
-  post,
   availableTags,
   onCreateTag,
-}: EditPostModalProps) {
-  const [content, setContent] = useState(post.content);
-  const [selectedTags, setSelectedTags] = useState<Tag[]>(post.tags);
+  mode,
+  post,
+  userName,
+  userColor,
+}: PostFormModalProps) {
+  const config = MODAL_CONFIG[mode];
+  const authorName = mode === "edit" ? post?.authorName : userName;
+  const authorColor = mode === "edit" ? post?.authorColor : userColor;
+
+  const [content, setContent] = useState("");
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Reset form when modal opens/closes or post changes
+  useModal({ isOpen, onClose, disabled: isSubmitting });
+
   useEffect(() => {
     if (isOpen) {
-      setContent(post.content);
-      setSelectedTags(post.tags);
+      setContent(mode === "edit" && post ? post.content : "");
+      setSelectedTags(mode === "edit" && post ? post.tags : []);
       setError("");
       setIsSubmitting(false);
-      // Focus textarea when modal opens
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
     }
-  }, [isOpen, post]);
-
-  // Close on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isSubmitting) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose, isSubmitting]);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  }, [isOpen, mode, post]);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -100,7 +102,7 @@ export function EditPostModal({
       await onSubmit(trimmedContent, selectedTags);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update post");
+      setError(err instanceof Error ? err.message : config.errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -119,18 +121,15 @@ export function EditPostModal({
         }
       }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" />
 
-      {/* Modal */}
       <div
         ref={modalRef}
         className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]"
       >
-        {/* Header */}
         <div className="relative flex items-center justify-center h-[52px] px-4 border-b border-[rgba(255,255,255,0.2)]">
           <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
-            Edit post
+            {config.title}
           </h2>
           <button
             type="button"
@@ -143,22 +142,17 @@ export function EditPostModal({
           </button>
         </div>
 
-        {/* Body */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-8 px-4 pt-6 pb-6">
-          {/* Content area */}
           <div className="flex gap-2 items-start">
-            {/* Avatar and vertical line */}
             <div className="flex flex-col gap-4 items-center">
-              <Avatar name={post.authorName} color={post.authorColor} size="md" />
+              <Avatar name={authorName ?? ""} color={authorColor ?? "#6366f1"} size="md" />
               <div className="flex-1 w-px bg-[rgba(255,255,255,0.2)]" />
             </div>
 
-            {/* Content */}
             <div className="flex-1 flex flex-col gap-2">
-              {/* User info and tag input */}
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium leading-[20px] text-white">
-                  {post.authorName}
+                  {authorName}
                 </span>
                 <TagInput
                   selectedTags={selectedTags}
@@ -170,7 +164,6 @@ export function EditPostModal({
                 />
               </div>
 
-              {/* Textarea */}
               <textarea
                 ref={textareaRef}
                 value={content}
@@ -188,7 +181,6 @@ export function EditPostModal({
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end">
             <Button
               type="submit"
@@ -198,7 +190,7 @@ export function EditPostModal({
               isLoading={isSubmitting}
               className="w-[182px]"
             >
-              Save changes
+              {config.submitText}
             </Button>
           </div>
         </form>

@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { NextRequest, NextResponse } from 'next/server';
+import { API_BASE_URL } from '@/lib/api/config';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookies = request.headers.get("cookie") ?? "";
+    const cookies = request.headers.get('cookie') ?? '';
 
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
-      method: "GET",
+      method: 'GET',
       headers: {
         Cookie: cookies,
       },
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Not authenticated" },
-        { status: response.status }
+        { error: data.message || 'Not authenticated' },
+        { status: response.status },
       );
     }
 
@@ -25,10 +25,7 @@ export async function GET(request: NextRequest) {
       user: data.user,
     });
   } catch (error) {
-    console.error("Get me proxy error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error('Get me proxy error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

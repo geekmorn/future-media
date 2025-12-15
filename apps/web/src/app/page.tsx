@@ -6,8 +6,20 @@ import { useAuth } from '@/lib/auth';
 import { usePosts, useTags, useUsers, useInfiniteScroll } from '@/hooks';
 import { PostsHeader } from '@/components/posts/posts-header';
 import { PostsList } from '@/components/posts/posts-list';
-import { CreatePostModal } from '@/components/posts/create-post-modal';
+import { PostFormModal } from '@/components/posts/post-form-modal';
 import { FilterModal, type FilterState } from '@/components/posts/filter-modal';
+
+const UUID_REGEX = /^[0-9a-f-]{36}$/i;
+
+function separateTagsByType(tags: Tag[]) {
+  const existingTagIds = tags.filter((tag) => UUID_REGEX.test(tag.id)).map((tag) => tag.id);
+  const newTagNames = tags.filter((tag) => !UUID_REGEX.test(tag.id)).map((tag) => tag.name);
+
+  return {
+    tagIds: existingTagIds.length > 0 ? existingTagIds : undefined,
+    tagNames: newTagNames.length > 0 ? newTagNames : undefined,
+  };
+}
 
 export default function Home() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -35,7 +47,6 @@ export default function Home() {
   const { tags: availableTags } = useTags();
   const { users: availableUsers } = useUsers();
 
-  // Infinite scroll
   const { lastElementRef } = useInfiniteScroll({
     onLoadMore: loadMore,
     hasMore,
@@ -71,19 +82,8 @@ export default function Home() {
   const handleSubmitPost = useCallback(
     async (content: string, tags: Tag[]) => {
       try {
-        // Separate existing tags (have UUID) from new tags (have custom IDs)
-        const existingTagIds = tags
-          .filter((tag) => tag.id.match(/^[0-9a-f-]{36}$/i))
-          .map((tag) => tag.id);
-        const newTagNames = tags
-          .filter((tag) => !tag.id.match(/^[0-9a-f-]{36}$/i))
-          .map((tag) => tag.name);
-
-        await createPost({
-          content,
-          tagIds: existingTagIds.length > 0 ? existingTagIds : undefined,
-          tagNames: newTagNames.length > 0 ? newTagNames : undefined,
-        });
+        const { tagIds, tagNames } = separateTagsByType(tags);
+        await createPost({ content, tagIds, tagNames });
       } catch (error) {
         console.error('Failed to create post:', error);
       }
@@ -94,19 +94,8 @@ export default function Home() {
   const handleUpdatePost = useCallback(
     async (id: string, content: string, tags: Tag[]) => {
       try {
-        // Separate existing tags (have UUID) from new tags (have custom IDs)
-        const existingTagIds = tags
-          .filter((tag) => tag.id.match(/^[0-9a-f-]{36}$/i))
-          .map((tag) => tag.id);
-        const newTagNames = tags
-          .filter((tag) => !tag.id.match(/^[0-9a-f-]{36}$/i))
-          .map((tag) => tag.name);
-
-        await updatePost(id, {
-          content,
-          tagIds: existingTagIds.length > 0 ? existingTagIds : undefined,
-          tagNames: newTagNames.length > 0 ? newTagNames : undefined,
-        });
+        const { tagIds, tagNames } = separateTagsByType(tags);
+        await updatePost(id, { content, tagIds, tagNames });
       } catch (error) {
         console.error('Failed to update post:', error);
         throw error;
@@ -127,7 +116,6 @@ export default function Home() {
     [deletePost],
   );
 
-  // Create tag handler for the modal (creates temporary tag object)
   const handleCreateTag = useCallback((name: string): Tag => {
     return {
       id: `new-${Date.now()}`,
@@ -135,7 +123,6 @@ export default function Home() {
     };
   }, []);
 
-  // Show loading state
   if (isAuthLoading) {
     return (
       <div className="bg-[#111] h-screen w-full flex items-center justify-center">
@@ -144,7 +131,6 @@ export default function Home() {
     );
   }
 
-  // Auth-context handles redirect to sign-in
   if (!user) {
     return null;
   }
@@ -197,8 +183,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Create Post Modal */}
-      <CreatePostModal
+      <PostFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmitPost}
@@ -206,9 +191,9 @@ export default function Home() {
         userColor={user.color ?? '#6366f1'}
         availableTags={availableTags}
         onCreateTag={handleCreateTag}
+        mode="create"
       />
 
-      {/* Filter Modal */}
       <FilterModal
         isOpen={isFilterModalOpen}
         onClose={handleCloseFilterModal}

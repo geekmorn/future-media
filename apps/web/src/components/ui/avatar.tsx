@@ -10,7 +10,6 @@ export interface AvatarProps {
 export function Avatar({ name, color, size = "md", className }: AvatarProps) {
   const initial = name.charAt(0).toUpperCase();
 
-  // Определяем цвет текста на основе яркости фона
   const isLightColor = ["#fbbc05", "#34e7f8"].includes(color.toLowerCase());
   const textColor = isLightColor ? "text-black" : "text-white";
 

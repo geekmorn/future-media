@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { NextRequest, NextResponse } from 'next/server';
+import { API_BASE_URL } from '@/lib/api/config';
+import { forwardSetCookieHeader } from '@/lib/api/proxy';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
     const response = await fetch(`${API_BASE_URL}/auth/sign-up`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
 
@@ -17,33 +16,17 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Failed to sign up" },
-        { status: response.status }
+        { error: data.message || 'Failed to sign up' },
+        { status: response.status },
       );
     }
 
-    // Create response with user data
-    const res = NextResponse.json({
-      success: true,
-      user: data.user,
-    });
-
-    // Forward cookies from NestJS API
-    const setCookieHeader = response.headers.get("set-cookie");
-    if (setCookieHeader) {
-      const cookies = setCookieHeader.split(/,(?=\s*\w+=)/);
-      for (const cookie of cookies) {
-        res.headers.append("set-cookie", cookie.trim());
-      }
-    }
+    const res = NextResponse.json({ success: true, user: data.user });
+    forwardSetCookieHeader(response, res);
 
     return res;
   } catch (error) {
-    console.error("Sign up proxy error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error('Sign up proxy error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

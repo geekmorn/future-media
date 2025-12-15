@@ -1,47 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect } from "react";
-import type { Tag } from "@repo/types";
-import { getTags } from "@/lib/api/posts";
+import { useCallback } from 'react';
+import type { Tag } from '@repo/types';
+import { getTags } from '@/lib/api/posts';
+import { useFetchList, type UseFetchListReturn } from './use-fetch-list';
 
-export interface UseTagsReturn {
-  tags: Tag[];
-  isLoading: boolean;
-  error: string | null;
-  refresh: () => Promise<void>;
-}
+export type UseTagsReturn = UseFetchListReturn<Tag> & { tags: Tag[] };
 
 export function useTags(): UseTagsReturn {
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTags = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await getTags();
-      setTags(data.items);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load tags");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const refresh = useCallback(async () => {
-    await fetchTags();
-  }, [fetchTags]);
-
-  useEffect(() => {
-    fetchTags();
-  }, [fetchTags]);
+  const fetchTags = useCallback(() => getTags(), []);
+  const result = useFetchList<Tag>(fetchTags, 'Failed to load tags');
 
   return {
-    tags,
-    isLoading,
-    error,
-    refresh,
+    ...result,
+    tags: result.items,
   };
 }

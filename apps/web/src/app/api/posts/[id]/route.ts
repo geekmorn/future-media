@@ -1,19 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { NextRequest, NextResponse } from 'next/server';
+import { API_BASE_URL } from '@/lib/api/config';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const cookies = request.headers.get("cookie") ?? "";
+    const cookies = request.headers.get('cookie') ?? '';
     const body = await request.json();
 
     const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Cookie: cookies,
       },
       body: JSON.stringify(body),
@@ -23,31 +20,28 @@ export async function PATCH(
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Failed to update post" },
-        { status: response.status }
+        { error: data.message || 'Failed to update post' },
+        { status: response.status },
       );
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Update post proxy error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error('Update post proxy error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const cookies = request.headers.get("cookie") ?? "";
+    const cookies = request.headers.get('cookie') ?? '';
 
     const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: {
         Cookie: cookies,
       },
@@ -58,25 +52,18 @@ export async function DELETE(
       try {
         const data = await response.json();
         return NextResponse.json(
-          { error: data.message || "Failed to delete post" },
-          { status: response.status }
+          { error: data.message || 'Failed to delete post' },
+          { status: response.status },
         );
       } catch {
-        return NextResponse.json(
-          { error: "Failed to delete post" },
-          { status: response.status }
-        );
+        return NextResponse.json({ error: 'Failed to delete post' }, { status: response.status });
       }
     }
 
     // 204 No Content
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Delete post proxy error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error('Delete post proxy error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

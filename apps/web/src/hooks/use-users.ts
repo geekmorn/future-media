@@ -1,46 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { getUsers, type User } from "@/lib/api/posts";
+import { useFetchList, type UseFetchListReturn } from "./use-fetch-list";
 
-export interface UseUsersReturn {
-  users: User[];
-  isLoading: boolean;
-  error: string | null;
-  refresh: () => Promise<void>;
-}
+export type UseUsersReturn = UseFetchListReturn<User> & { users: User[] };
 
 export function useUsers(): UseUsersReturn {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await getUsers();
-      setUsers(data.items);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load users");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const refresh = useCallback(async () => {
-    await fetchUsers();
-  }, [fetchUsers]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const fetchUsers = useCallback(() => getUsers(), []);
+  const result = useFetchList<User>(fetchUsers, "Failed to load users");
 
   return {
-    users,
-    isLoading,
-    error,
-    refresh,
+    ...result,
+    users: result.items,
   };
 }

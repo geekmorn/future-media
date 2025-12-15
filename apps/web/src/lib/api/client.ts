@@ -1,10 +1,3 @@
-/**
- * API client with automatic 401 handling:
- * 1. On 401 - attempt to refresh token
- * 2. If refresh succeeds - retry the original request
- * 3. If refresh fails - throw error (auth-context handles redirect)
- */
-
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
