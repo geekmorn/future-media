@@ -8,11 +8,7 @@ import { JwtStrategy, JwtRefreshStrategy, GoogleStrategy } from './strategies';
 import { UserEntity } from '../../entities';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    PassportModule,
-    JwtModule.register({}),
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity]), PassportModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
   exports: [AuthService],

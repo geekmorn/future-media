@@ -8,19 +8,19 @@ import tseslint from 'typescript-eslint';
  * @type {import('typescript-eslint').ConfigArray}
  */
 export const baseConfig = tseslint.config(
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
-    eslintPluginPrettierRecommended,
-    {
-        rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-unused-vars': [
-                'error',
-                { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-            ],
-            'prettier/prettier': ['error', { endOfLine: 'auto' }],
-        },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
+  },
 );
 
 export default baseConfig;

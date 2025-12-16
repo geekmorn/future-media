@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Button } from "./button";
-import { CloseIcon } from "@/components/icons";
-import { useModal } from "@/hooks/use-modal";
+import { Button } from './button';
+import { CloseIcon } from '@/components/icons';
+import { useModal } from '@/hooks/use-modal';
 
 export interface ConfirmModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ export interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;
-  variant?: "danger" | "primary";
+  variant?: 'danger' | 'primary';
 }
 
 export function ConfirmModal({
@@ -22,10 +22,10 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   isLoading = false,
-  variant = "primary",
+  variant = 'primary',
 }: ConfirmModalProps) {
   useModal({ isOpen, onClose, disabled: isLoading });
 
@@ -44,9 +44,7 @@ export function ConfirmModal({
 
       <div className="relative z-10 w-full max-w-[400px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]">
         <div className="relative flex items-center justify-center h-[52px] px-4 border-b border-[rgba(255,255,255,0.2)]">
-          <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
-            {title}
-          </h2>
+          <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">{title}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -89,4 +87,3 @@ export function ConfirmModal({
     </div>
   );
 }
-

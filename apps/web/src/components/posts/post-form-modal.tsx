@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import type { Tag, Post } from "@repo/types";
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { TagInput } from "./tag-input";
-import { CloseIcon } from "@/components/icons";
-import { useModal } from "@/hooks/use-modal";
+import { useState, useEffect, useRef } from 'react';
+import type { Tag, Post } from '@repo/types';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { TagInput } from './tag-input';
+import { CloseIcon } from '@/components/icons';
+import { useModal } from '@/hooks/use-modal';
 
-export type PostFormMode = "create" | "edit";
+export type PostFormMode = 'create' | 'edit';
 
 export interface PostFormModalProps {
   isOpen: boolean;
@@ -26,14 +26,14 @@ const MAX_CONTENT_LENGTH = 240;
 
 const MODAL_CONFIG = {
   create: {
-    title: "Create a new post",
-    submitText: "Upload",
-    errorMessage: "Failed to create post",
+    title: 'Create a new post',
+    submitText: 'Upload',
+    errorMessage: 'Failed to create post',
   },
   edit: {
-    title: "Edit post",
-    submitText: "Save changes",
-    errorMessage: "Failed to update post",
+    title: 'Edit post',
+    submitText: 'Save changes',
+    errorMessage: 'Failed to update post',
   },
 } as const;
 
@@ -49,12 +49,12 @@ export function PostFormModal({
   userColor,
 }: PostFormModalProps) {
   const config = MODAL_CONFIG[mode];
-  const authorName = mode === "edit" ? post?.authorName : userName;
-  const authorColor = mode === "edit" ? post?.authorColor : userColor;
+  const authorName = mode === 'edit' ? post?.authorName : userName;
+  const authorColor = mode === 'edit' ? post?.authorColor : userColor;
 
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,9 +63,9 @@ export function PostFormModal({
 
   useEffect(() => {
     if (isOpen) {
-      setContent(mode === "edit" && post ? post.content : "");
-      setSelectedTags(mode === "edit" && post ? post.tags : []);
-      setError("");
+      setContent(mode === 'edit' && post ? post.content : '');
+      setSelectedTags(mode === 'edit' && post ? post.tags : []);
+      setError('');
       setIsSubmitting(false);
       setTimeout(() => {
         textareaRef.current?.focus();
@@ -77,7 +77,7 @@ export function PostFormModal({
     const value = e.target.value;
     if (value.length <= MAX_CONTENT_LENGTH) {
       setContent(value);
-      setError("");
+      setError('');
     }
   };
 
@@ -86,7 +86,7 @@ export function PostFormModal({
 
     const trimmedContent = content.trim();
     if (!trimmedContent) {
-      setError("Post content is required");
+      setError('Post content is required');
       return;
     }
 
@@ -96,7 +96,7 @@ export function PostFormModal({
     }
 
     setIsSubmitting(true);
-    setError("");
+    setError('');
 
     try {
       await onSubmit(trimmedContent, selectedTags);
@@ -145,7 +145,7 @@ export function PostFormModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-8 px-4 pt-6 pb-6">
           <div className="flex gap-2 items-start">
             <div className="flex flex-col gap-4 items-center">
-              <Avatar name={authorName ?? ""} color={authorColor ?? "#6366f1"} size="md" />
+              <Avatar name={authorName ?? ''} color={authorColor ?? '#6366f1'} size="md" />
               <div className="flex-1 w-px bg-[rgba(255,255,255,0.2)]" />
             </div>
 
@@ -173,11 +173,7 @@ export function PostFormModal({
                 disabled={isSubmitting}
                 className="w-full bg-transparent text-[14px] font-normal leading-[20px] text-[rgba(255,255,255,0.8)] placeholder:text-[rgba(255,255,255,0.6)] focus:outline-none resize-none disabled:opacity-50"
               />
-              {error && (
-                <p className="text-[12px] leading-[16px] text-red-500">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-[12px] leading-[16px] text-red-500">{error}</p>}
             </div>
           </div>
 
@@ -198,4 +194,3 @@ export function PostFormModal({
     </div>
   );
 }
-

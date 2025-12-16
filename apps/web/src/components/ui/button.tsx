@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { type ButtonHTMLAttributes, forwardRef } from "react";
-import { cn } from "@/lib/utils";
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "icon" | "danger";
-  size?: "sm" | "md" | "lg";
+  variant?: 'primary' | 'secondary' | 'ghost' | 'icon' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
 }
 
@@ -13,42 +13,40 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,
-      variant = "primary",
-      size = "md",
+      variant = 'primary',
+      size = 'md',
       isLoading = false,
       disabled,
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none";
+      'inline-flex items-center justify-center font-medium rounded-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none';
 
     const variants = {
       primary:
-        "bg-[#9747ff] text-white hover:bg-[#8a3dee] active:bg-[#7c34e0] disabled:bg-[#353535] disabled:opacity-60",
-      secondary:
-        "bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50",
+        'bg-[#9747ff] text-white hover:bg-[#8a3dee] active:bg-[#7c34e0] disabled:bg-[#353535] disabled:opacity-60',
+      secondary: 'bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50',
       ghost:
-        "bg-transparent text-white hover:bg-[rgba(255,255,255,0.1)] active:bg-[rgba(255,255,255,0.15)] disabled:opacity-50",
-      icon:
-        "bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50 rounded-[12px]",
+        'bg-transparent text-white hover:bg-[rgba(255,255,255,0.1)] active:bg-[rgba(255,255,255,0.15)] disabled:opacity-50',
+      icon: 'bg-[#171717] text-white hover:bg-[#222] active:bg-[#2a2a2a] disabled:opacity-50 rounded-[12px]',
       danger:
-        "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-900 disabled:opacity-60",
+        'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-900 disabled:opacity-60',
     };
 
     const sizes = {
-      sm: "h-[36px] px-5 text-[14px] leading-[20px]",
-      md: "h-[40px] px-6 text-[16px] leading-[24px]",
-      lg: "h-[48px] px-6 text-[16px] leading-[24px]",
+      sm: 'h-[36px] px-5 text-[14px] leading-[20px]',
+      md: 'h-[40px] px-6 text-[16px] leading-[24px]',
+      lg: 'h-[48px] px-6 text-[16px] leading-[24px]',
     };
 
     // Icon variant has different sizing
     const iconSizes = {
-      sm: "size-[36px] p-[8px]",
-      md: "size-[48px] p-[12px]",
-      lg: "size-[56px] p-[16px]",
+      sm: 'size-[36px] p-[8px]',
+      md: 'size-[48px] p-[12px]',
+      lg: 'size-[56px] p-[16px]',
     };
 
     return (
@@ -57,8 +55,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           baseStyles,
           variants[variant],
-          variant === "icon" ? iconSizes[size] : sizes[size],
-          className
+          variant === 'icon' ? iconSizes[size] : sizes[size],
+          className,
         )}
         disabled={disabled || isLoading}
         {...props}
@@ -90,8 +88,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
-Button.displayName = "Button";
-
+Button.displayName = 'Button';

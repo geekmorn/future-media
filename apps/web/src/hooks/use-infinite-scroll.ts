@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from 'react';
 
 export interface UseInfiniteScrollOptions {
   onLoadMore: () => void;
@@ -16,17 +16,17 @@ export function useInfiniteScroll({
   threshold = 200,
 }: UseInfiniteScrollOptions) {
   const observerRef = useRef<IntersectionObserver | null>(null);
-  
+
   const lastElementRef = useCallback(
     (node: HTMLElement | null) => {
       if (isLoading) return;
-      
+
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      
+
       if (!node || !hasMore) return;
-      
+
       observerRef.current = new IntersectionObserver(
         (entries) => {
           if (entries[0]?.isIntersecting && hasMore && !isLoading) {
@@ -35,12 +35,12 @@ export function useInfiniteScroll({
         },
         {
           rootMargin: `${threshold}px`,
-        }
+        },
       );
-      
+
       observerRef.current.observe(node);
     },
-    [onLoadMore, hasMore, isLoading, threshold]
+    [onLoadMore, hasMore, isLoading, threshold],
   );
 
   // Cleanup observer on unmount

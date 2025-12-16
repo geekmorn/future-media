@@ -24,4 +24,3 @@ export class SearchQueryDto {
   @Max(PAGINATION.MAX_USERS_LIMIT)
   limit?: number = PAGINATION.DEFAULT_LIMIT;
 }
-

@@ -79,17 +79,13 @@ describe('PostsService', () => {
     it('should throw NotFoundException when post does not exist', async () => {
       postRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.delete('nonexistent', 'user-1')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.delete('nonexistent', 'user-1')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException when user is not the author', async () => {
       postRepository.findOne.mockResolvedValue(mockPost);
 
-      await expect(service.delete('post-1', 'other-user')).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.delete('post-1', 'other-user')).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -97,17 +93,17 @@ describe('PostsService', () => {
     it('should throw ForbiddenException when user tries to edit another users post', async () => {
       postRepository.findOne.mockResolvedValue(mockPost);
 
-      await expect(
-        service.update('post-1', { content: 'Updated' }, 'other-user'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.update('post-1', { content: 'Updated' }, 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('should throw NotFoundException when post does not exist', async () => {
       postRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update('nonexistent', { content: 'Updated' }, 'user-1'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update('nonexistent', { content: 'Updated' }, 'user-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -119,10 +115,7 @@ describe('PostsService', () => {
       postRepository.save.mockResolvedValue(mockPost);
       postRepository.findOne.mockResolvedValue(mockPost);
 
-      const result = await service.create(
-        { content: 'New post', tagIds: ['tag-1'] },
-        'user-1',
-      );
+      const result = await service.create({ content: 'New post', tagIds: ['tag-1'] }, 'user-1');
 
       expect(result).toEqual({
         id: mockPost.id,
@@ -144,4 +137,3 @@ describe('PostsService', () => {
     });
   });
 });
-

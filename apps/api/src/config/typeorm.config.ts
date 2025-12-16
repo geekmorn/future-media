@@ -16,10 +16,7 @@ const dataSourceOptions: DataSourceOptions = databaseUrl
   ? {
       type: 'postgres',
       url: databaseUrl,
-      ssl:
-        process.env.NODE_ENV === 'production'
-          ? { rejectUnauthorized: false }
-          : false,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       ...baseOptions,
     }
   : {

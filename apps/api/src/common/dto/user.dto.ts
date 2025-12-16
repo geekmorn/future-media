@@ -21,4 +21,3 @@ export class UserWithColorDto extends UserDto {
   })
   color!: string;
 }
-

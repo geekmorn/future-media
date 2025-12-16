@@ -84,9 +84,9 @@ describe('AuthService', () => {
     it('should throw ConflictException when user already exists', async () => {
       userRepository.findOne.mockResolvedValue(mockUser);
 
-      await expect(
-        service.signUp({ name: 'testuser', password: 'password123' }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.signUp({ name: 'testuser', password: 'password123' })).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -116,9 +116,9 @@ describe('AuthService', () => {
       userRepository.findOne.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(
-        service.signIn({ name: 'testuser', password: 'wrongpassword' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.signIn({ name: 'testuser', password: 'wrongpassword' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -134,10 +134,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException when user not found', async () => {
       userRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getMe('nonexistent')).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.getMe('nonexistent')).rejects.toThrow(UnauthorizedException);
     });
   });
 });
-

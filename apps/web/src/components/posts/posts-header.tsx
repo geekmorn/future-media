@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { FilterIcon, PlusCircleIcon, CloseIcon } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { UserMenu } from "./user-menu";
+import { FilterIcon, PlusCircleIcon, CloseIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { UserMenu } from './user-menu';
 
 export interface PostsHeaderProps {
   userName: string;
@@ -32,8 +32,8 @@ export function PostsHeader({
         {/* Filter button */}
         <div
           className={cn(
-            "bg-[#171717] flex items-center rounded-[12px] shrink-0",
-            isFilterActive && "border border-[#9747ff]"
+            'bg-[#171717] flex items-center rounded-[12px] shrink-0',
+            isFilterActive && 'border border-[#9747ff]',
           )}
         >
           <Button
@@ -57,12 +57,7 @@ export function PostsHeader({
         </div>
 
         {/* Create post button */}
-        <Button
-          variant="secondary"
-          size="lg"
-          onClick={onCreateClick}
-          className="gap-[5px]"
-        >
+        <Button variant="secondary" size="lg" onClick={onCreateClick} className="gap-[5px]">
           <PlusCircleIcon className="size-[24px] text-white shrink-0" />
           <span className="whitespace-nowrap">Create a new post</span>
         </Button>

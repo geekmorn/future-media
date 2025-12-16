@@ -1,17 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useMemo } from "react";
-import type { Tag } from "@repo/types";
-import type { User } from "@/lib/api/posts";
-import {
-  CloseIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CheckIcon,
-} from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { useModal } from "@/hooks/use-modal";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useRef, useMemo } from 'react';
+import type { Tag } from '@repo/types';
+import type { User } from '@/lib/api/posts';
+import { CloseIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
+import { useModal } from '@/hooks/use-modal';
+import { cn } from '@/lib/utils';
 
 export interface FilterState {
   userIds: string[];
@@ -27,7 +22,7 @@ export interface FilterModalProps {
   initialFilters?: FilterState;
 }
 
-type ExpandedSection = "username" | "tag" | "date" | null;
+type ExpandedSection = 'username' | 'tag' | 'date' | null;
 
 export function FilterModal({
   isOpen,
@@ -38,14 +33,10 @@ export function FilterModal({
   initialFilters,
 }: FilterModalProps) {
   const [expandedSection, setExpandedSection] = useState<ExpandedSection>(null);
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(
-    initialFilters?.userIds ?? []
-  );
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
-    initialFilters?.tagIds ?? []
-  );
-  const [usernameSearch, setUsernameSearch] = useState("");
-  const [tagSearch, setTagSearch] = useState("");
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(initialFilters?.userIds ?? []);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialFilters?.tagIds ?? []);
+  const [usernameSearch, setUsernameSearch] = useState('');
+  const [tagSearch, setTagSearch] = useState('');
   const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
 
@@ -61,8 +52,8 @@ export function FilterModal({
     if (isOpen) {
       setSelectedUserIds(initialFilters?.userIds ?? []);
       setSelectedTagIds(initialFilters?.tagIds ?? []);
-      setUsernameSearch("");
-      setTagSearch("");
+      setUsernameSearch('');
+      setTagSearch('');
       setExpandedSection(null);
       setShowUsernameDropdown(false);
       setShowTagDropdown(false);
@@ -89,8 +80,8 @@ export function FilterModal({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Get selected users/tags for display
@@ -106,18 +97,14 @@ export function FilterModal({
   const filteredUsers = useMemo(() => {
     const search = usernameSearch.toLowerCase().trim();
     if (!search) return availableUsers;
-    return availableUsers.filter((user) =>
-      user.name.toLowerCase().includes(search)
-    );
+    return availableUsers.filter((user) => user.name.toLowerCase().includes(search));
   }, [availableUsers, usernameSearch]);
 
   // Filter tags based on search
   const filteredTags = useMemo(() => {
     const search = tagSearch.toLowerCase().trim();
     if (!search) return availableTags;
-    return availableTags.filter((tag) =>
-      tag.name.toLowerCase().includes(search)
-    );
+    return availableTags.filter((tag) => tag.name.toLowerCase().includes(search));
   }, [availableTags, tagSearch]);
 
   const handleToggleSection = (section: ExpandedSection) => {
@@ -128,12 +115,10 @@ export function FilterModal({
 
   const handleSelectUser = (userId: string) => {
     setSelectedUserIds((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
     );
     setShowUsernameDropdown(false);
-    setUsernameSearch("");
+    setUsernameSearch('');
   };
 
   const handleRemoveUser = (userId: string) => {
@@ -142,12 +127,10 @@ export function FilterModal({
 
   const handleSelectTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
     );
     setShowTagDropdown(false);
-    setTagSearch("");
+    setTagSearch('');
   };
 
   const handleRemoveTag = (tagId: string) => {
@@ -157,8 +140,8 @@ export function FilterModal({
   const handleReset = () => {
     setSelectedUserIds([]);
     setSelectedTagIds([]);
-    setUsernameSearch("");
-    setTagSearch("");
+    setUsernameSearch('');
+    setTagSearch('');
   };
 
   const handleApply = () => {
@@ -189,9 +172,7 @@ export function FilterModal({
         className="relative z-10 w-full max-w-[643px] bg-[#111] border border-[rgba(255,255,255,0.2)] rounded-[16px]"
       >
         <div className="relative flex items-center justify-center h-[64px] px-4 border-b border-[rgba(255,255,255,0.2)]">
-          <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">
-            Sort by
-          </h2>
+          <h2 className="text-[20px] font-medium leading-[28px] text-white text-center">Sort by</h2>
           <button
             type="button"
             onClick={onClose}
@@ -205,10 +186,10 @@ export function FilterModal({
         <div className="p-4 pt-8 flex flex-col gap-6">
           <div className="flex flex-col gap-4">
             <div className="bg-[#1a1a1a] rounded-[8px]">
-              {expandedSection !== "username" && (
+              {expandedSection !== 'username' && (
                 <button
                   type="button"
-                  onClick={() => handleToggleSection("username")}
+                  onClick={() => handleToggleSection('username')}
                   className="w-full flex items-center justify-between px-4 py-[10px] rounded-[8px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
@@ -241,11 +222,11 @@ export function FilterModal({
                 </button>
               )}
 
-              {expandedSection === "username" && (
+              {expandedSection === 'username' && (
                 <div className="flex flex-col gap-4 px-4 py-[10px]">
                   <button
                     type="button"
-                    onClick={() => handleToggleSection("username")}
+                    onClick={() => handleToggleSection('username')}
                     className="w-full flex items-center justify-between"
                   >
                     <span className="text-[16px] font-medium leading-[24px] text-white">
@@ -270,9 +251,8 @@ export function FilterModal({
                         onFocus={() => setShowUsernameDropdown(true)}
                         placeholder="Enter user name"
                         className={cn(
-                          "w-full bg-[#242424] rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none transition-colors",
-                          showUsernameDropdown &&
-                            "border border-[rgba(255,255,255,0.6)]"
+                          'w-full bg-[#242424] rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none transition-colors',
+                          showUsernameDropdown && 'border border-[rgba(255,255,255,0.6)]',
                         )}
                       />
 
@@ -281,32 +261,26 @@ export function FilterModal({
                           ref={usernameDropdownRef}
                           className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#242424] border border-[#595959] rounded-[8px] p-2 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-track-[#242424] scrollbar-thumb-[#595959] hover:scrollbar-thumb-[#6a6a6a]"
                           style={{
-                            scrollbarWidth: "thin",
-                            scrollbarColor: "#595959 #242424",
+                            scrollbarWidth: 'thin',
+                            scrollbarColor: '#595959 #242424',
                           }}
                         >
                           {filteredUsers.map((user) => {
-                            const isSelected = selectedUserIds.includes(
-                              user.id
-                            );
+                            const isSelected = selectedUserIds.includes(user.id);
                             return (
                               <button
                                 key={user.id}
                                 type="button"
                                 onClick={() => handleSelectUser(user.id)}
                                 className={cn(
-                                  "w-full flex items-center justify-between p-3 rounded-[8px] transition-colors",
-                                  isSelected
-                                    ? "bg-[#292929]"
-                                    : "bg-[#242424] hover:bg-[#292929]"
+                                  'w-full flex items-center justify-between p-3 rounded-[8px] transition-colors',
+                                  isSelected ? 'bg-[#292929]' : 'bg-[#242424] hover:bg-[#292929]',
                                 )}
                               >
                                 <span className="text-[12px] font-medium leading-[16px] text-white">
                                   {user.name}
                                 </span>
-                                {isSelected && (
-                                  <CheckIcon className="size-[18px] text-[#9747ff]" />
-                                )}
+                                {isSelected && <CheckIcon className="size-[18px] text-[#9747ff]" />}
                               </button>
                             );
                           })}
@@ -341,10 +315,10 @@ export function FilterModal({
             </div>
 
             <div className="bg-[#1a1a1a] rounded-[8px]">
-              {expandedSection !== "tag" && (
+              {expandedSection !== 'tag' && (
                 <button
                   type="button"
-                  onClick={() => handleToggleSection("tag")}
+                  onClick={() => handleToggleSection('tag')}
                   className="w-full flex items-center justify-between px-4 py-[10px] rounded-[8px] hover:bg-[rgba(255,255,255,0.05)] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
@@ -377,11 +351,11 @@ export function FilterModal({
                 </button>
               )}
 
-              {expandedSection === "tag" && (
+              {expandedSection === 'tag' && (
                 <div className="flex flex-col gap-4 px-4 py-[10px]">
                   <button
                     type="button"
-                    onClick={() => handleToggleSection("tag")}
+                    onClick={() => handleToggleSection('tag')}
                     className="w-full flex items-center justify-between"
                   >
                     <span className="text-[16px] font-medium leading-[24px] text-white">
@@ -406,9 +380,8 @@ export function FilterModal({
                         onFocus={() => setShowTagDropdown(true)}
                         placeholder="Enter tag"
                         className={cn(
-                          "w-full bg-[#242424] rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none transition-colors",
-                          showTagDropdown &&
-                            "border border-[rgba(255,255,255,0.6)]"
+                          'w-full bg-[#242424] rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none transition-colors',
+                          showTagDropdown && 'border border-[rgba(255,255,255,0.6)]',
                         )}
                       />
 
@@ -417,8 +390,8 @@ export function FilterModal({
                           ref={tagDropdownRef}
                           className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#242424] border border-[#595959] rounded-[8px] p-2 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-track-[#242424] scrollbar-thumb-[#595959] hover:scrollbar-thumb-[#6a6a6a]"
                           style={{
-                            scrollbarWidth: "thin",
-                            scrollbarColor: "#595959 #242424",
+                            scrollbarWidth: 'thin',
+                            scrollbarColor: '#595959 #242424',
                           }}
                         >
                           {filteredTags.map((tag) => {
@@ -429,18 +402,14 @@ export function FilterModal({
                                 type="button"
                                 onClick={() => handleSelectTag(tag.id)}
                                 className={cn(
-                                  "w-full flex items-center justify-between p-3 rounded-[8px] transition-colors",
-                                  isSelected
-                                    ? "bg-[#292929]"
-                                    : "bg-[#242424] hover:bg-[#292929]"
+                                  'w-full flex items-center justify-between p-3 rounded-[8px] transition-colors',
+                                  isSelected ? 'bg-[#292929]' : 'bg-[#242424] hover:bg-[#292929]',
                                 )}
                               >
                                 <span className="text-[12px] font-medium leading-[16px] text-white">
                                   {tag.name}
                                 </span>
-                                {isSelected && (
-                                  <CheckIcon className="size-[18px] text-[#9747ff]" />
-                                )}
+                                {isSelected && <CheckIcon className="size-[18px] text-[#9747ff]" />}
                               </button>
                             );
                           })}
@@ -476,9 +445,7 @@ export function FilterModal({
 
             <div className="bg-[#1a1a1a] rounded-[8px]">
               <div className="flex items-center justify-between px-4 py-[10px] opacity-50 cursor-not-allowed">
-                <span className="text-[16px] font-medium leading-[24px] text-white">
-                  By date
-                </span>
+                <span className="text-[16px] font-medium leading-[24px] text-white">By date</span>
                 <ChevronDownIcon className="size-4 text-white shrink-0" />
               </div>
             </div>

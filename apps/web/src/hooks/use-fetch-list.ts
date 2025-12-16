@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from 'react';
 
 export interface UseFetchListReturn<T> {
   items: T[];
@@ -11,7 +11,7 @@ export interface UseFetchListReturn<T> {
 
 export function useFetchList<T>(
   fetchFn: () => Promise<{ items: T[] }>,
-  errorMessage: string
+  errorMessage: string,
 ): UseFetchListReturn<T> {
   const [items, setItems] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,4 +46,3 @@ export function useFetchList<T>(
     refresh,
   };
 }
-

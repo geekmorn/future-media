@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import type { Tag } from "@repo/types";
-import { Tag as TagComponent } from "@/components/ui/tag";
-import { cn } from "@/lib/utils";
+import { useState, useRef, useEffect } from 'react';
+import type { Tag } from '@repo/types';
+import { Tag as TagComponent } from '@/components/ui/tag';
+import { cn } from '@/lib/utils';
 
 export interface TagInputProps {
   selectedTags: Tag[];
@@ -24,7 +24,7 @@ export function TagInput({
   maxTagLength = 12,
   className,
 }: TagInputProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isInputVisible, setIsInputVisible] = useState(false);
   const [filteredTags, setFilteredTags] = useState<Tag[]>([]);
@@ -35,11 +35,11 @@ export function TagInput({
   // Filter tags based on input
   useEffect(() => {
     const trimmedValue = inputValue.trim();
-    
+
     if (!trimmedValue) {
       // Show all available tags when input is empty and dropdown is open
       const available = availableTags.filter(
-        (tag) => !selectedTags.some((selected) => selected.id === tag.id)
+        (tag) => !selectedTags.some((selected) => selected.id === tag.id),
       );
       setFilteredTags(available);
       setShowCreateOption(false);
@@ -49,19 +49,15 @@ export function TagInput({
     const filtered = availableTags.filter(
       (tag) =>
         !selectedTags.some((selected) => selected.id === tag.id) &&
-        tag.name.toLowerCase().includes(trimmedValue.toLowerCase())
+        tag.name.toLowerCase().includes(trimmedValue.toLowerCase()),
     );
 
     setFilteredTags(filtered);
     setShowCreateOption(
       trimmedValue.length > 0 &&
         trimmedValue.length <= maxTagLength &&
-        !availableTags.some(
-          (tag) => tag.name.toLowerCase() === trimmedValue.toLowerCase()
-        ) &&
-        !selectedTags.some(
-          (tag) => tag.name.toLowerCase() === trimmedValue.toLowerCase()
-        )
+        !availableTags.some((tag) => tag.name.toLowerCase() === trimmedValue.toLowerCase()) &&
+        !selectedTags.some((tag) => tag.name.toLowerCase() === trimmedValue.toLowerCase()),
     );
   }, [inputValue, availableTags, selectedTags, maxTagLength]);
 
@@ -78,8 +74,8 @@ export function TagInput({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +108,7 @@ export function TagInput({
       setIsOpen(false);
       // Reset input if no tags selected
       if (!inputValue && selectedTags.length === 0) {
-        setInputValue("");
+        setInputValue('');
       }
     }, 200);
   };
@@ -120,7 +116,7 @@ export function TagInput({
   const handleSelectTag = (tag: Tag) => {
     if (selectedTags.length < maxTags) {
       onTagsChange([...selectedTags, tag]);
-      setInputValue("");
+      setInputValue('');
       setIsOpen(false);
       // Hide input if we've reached max tags, otherwise keep it visible
       if (selectedTags.length + 1 >= maxTags) {
@@ -140,7 +136,7 @@ export function TagInput({
     ) {
       const newTag = onCreateTag(trimmedValue);
       onTagsChange([...selectedTags, newTag]);
-      setInputValue("");
+      setInputValue('');
       setIsOpen(false);
       // Hide input if we've reached max tags, otherwise keep it visible
       if (selectedTags.length + 1 >= maxTags) {
@@ -160,26 +156,32 @@ export function TagInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.trim()) {
+    if (e.key === 'Enter' && inputValue.trim()) {
       e.preventDefault();
       if (showCreateOption) {
         handleCreateTag();
       } else if (filteredTags.length > 0) {
         handleSelectTag(filteredTags[0]);
       }
-    } else if (e.key === "Backspace" && !inputValue && selectedTags.length > 0) {
+    } else if (e.key === 'Backspace' && !inputValue && selectedTags.length > 0) {
       handleRemoveTag(selectedTags[selectedTags.length - 1].id);
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       setIsOpen(false);
     }
   };
 
-  const shouldShowDropdown = isOpen && (filteredTags.length > 0 || showCreateOption || (!inputValue.trim() && availableTags.filter((tag) => !selectedTags.some((selected) => selected.id === tag.id)).length > 0));
+  const shouldShowDropdown =
+    isOpen &&
+    (filteredTags.length > 0 ||
+      showCreateOption ||
+      (!inputValue.trim() &&
+        availableTags.filter((tag) => !selectedTags.some((selected) => selected.id === tag.id))
+          .length > 0));
   const showInput = isInputVisible || selectedTags.length > 0 || inputValue.length > 0;
   const canAddMoreTags = selectedTags.length < maxTags;
 
   return (
-    <div className={cn("flex items-center gap-2 flex-wrap", className)}>
+    <div className={cn('flex items-center gap-2 flex-wrap', className)}>
       {/* Selected tags */}
       {selectedTags.map((tag) => (
         <div key={tag.id} className="relative group">
@@ -233,9 +235,7 @@ export function TagInput({
                   onClick={handleCreateTag}
                   className="w-full px-4 py-3 text-left hover:bg-[#212121] transition-colors flex items-center justify-between"
                 >
-                  <span className="text-white text-[14px] leading-[20px]">
-                    {inputValue.trim()}
-                  </span>
+                  <span className="text-white text-[14px] leading-[20px]">{inputValue.trim()}</span>
                   <span className="text-[rgba(255,255,255,0.6)] text-[12px] leading-[16px]">
                     New tag
                   </span>
@@ -250,9 +250,7 @@ export function TagInput({
                   onClick={() => handleSelectTag(tag)}
                   className="w-full px-4 py-3 text-left hover:bg-[#212121] transition-colors"
                 >
-                  <span className="text-white text-[14px] leading-[20px]">
-                    {tag.name}
-                  </span>
+                  <span className="text-white text-[14px] leading-[20px]">{tag.name}</span>
                 </button>
               ))}
             </div>

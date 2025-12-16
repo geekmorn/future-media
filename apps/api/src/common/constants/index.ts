@@ -25,4 +25,3 @@ export const PAGINATION = {
   MAX_USERS_LIMIT: 50,
   MAX_TAGS_PER_POST: 5,
 } as const;
-

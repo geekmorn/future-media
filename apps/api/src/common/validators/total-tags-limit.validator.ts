@@ -22,4 +22,3 @@ export class TotalTagsLimitConstraint implements ValidatorConstraintInterface {
     return 'Total number of tags (tagIds + tagNames) must not exceed 5';
   }
 }
-

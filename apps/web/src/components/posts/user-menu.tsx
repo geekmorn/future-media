@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Avatar } from "@/components/ui/avatar";
-import { DropdownMenu } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/lib/auth";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Avatar } from '@/components/ui/avatar';
+import { DropdownMenu } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/lib/auth';
 
 export interface UserMenuProps {
   userName: string;
@@ -20,10 +20,10 @@ export function UserMenu({ userName, userColor }: UserMenuProps) {
     setIsLoading(true);
     try {
       await signOut();
-      router.push("/sign-in");
+      router.push('/sign-in');
     } catch {
       // Even if signOut fails, redirect to sign-in
-      router.push("/sign-in");
+      router.push('/sign-in');
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +43,7 @@ export function UserMenu({ userName, userColor }: UserMenuProps) {
       }
       items={[
         {
-          label: "Log out",
+          label: 'Log out',
           onClick: handleLogout,
           isLoading,
           disabled: isLoading,

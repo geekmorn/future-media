@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { SignUpForm } from "@/components/auth/sign-up-form";
+import Link from 'next/link';
+import { SignUpForm } from '@/components/auth/sign-up-form';
 
 export const metadata = {
-  title: "Sign Up | Future Media",
-  description: "Create a new account",
+  title: 'Sign Up | Future Media',
+  description: 'Create a new account',
 };
 
 export default function SignUpPage() {
@@ -21,20 +21,14 @@ export default function SignUpPage() {
 
           {/* Logo */}
           <div className="text-center mb-[42px]">
-            <h1 className="text-[32px] font-medium leading-[38px] text-white">
-              Logo
-            </h1>
+            <h1 className="text-[32px] font-medium leading-[38px] text-white">Logo</h1>
           </div>
 
           {/* Form header */}
           <div className="flex items-center justify-between gap-3 mb-7">
-            <h2 className="text-[24px] font-medium leading-[28px] text-white">
-              Sign up
-            </h2>
+            <h2 className="text-[24px] font-medium leading-[28px] text-white">Sign up</h2>
             <div className="flex items-center gap-2 text-[14px] leading-[20px]">
-              <span className="text-[rgba(255,255,255,0.8)]">
-                Already have an account?
-              </span>
+              <span className="text-[rgba(255,255,255,0.8)]">Already have an account?</span>
               <Link
                 href="/sign-in"
                 className="font-medium text-[#9747ff] underline decoration-solid underline-offset-2 hover:text-[#b777ff] transition-colors"
@@ -51,4 +45,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-

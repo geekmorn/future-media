@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback } from 'react';
 
 export interface UseModalOptions {
   isOpen: boolean;
@@ -17,26 +17,25 @@ export function useModal({ isOpen, onClose, disabled = false }: UseModalOptions)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !disabled) {
+      if (e.key === 'Escape' && isOpen && !disabled) {
         onClose();
       }
     };
 
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose, disabled]);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   return { handleClose };
 }
-

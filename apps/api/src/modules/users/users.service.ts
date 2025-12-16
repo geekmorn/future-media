@@ -30,9 +30,9 @@ export class UsersService {
 
   private mapToDto(user: UserEntity): UserWithColorDto {
     return {
-        id: user.id,
-        name: user.name,
-        color: user.color,
+      id: user.id,
+      name: user.name,
+      color: user.color,
     };
   }
 }

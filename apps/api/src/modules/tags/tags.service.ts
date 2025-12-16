@@ -61,8 +61,8 @@ export class TagsService {
 
   private mapToDto(tag: TagEntity): TagDto {
     return {
-        id: tag.id,
-        name: tag.name,
+      id: tag.id,
+      name: tag.name,
     };
   }
 }

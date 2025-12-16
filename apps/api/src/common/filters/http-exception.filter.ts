@@ -22,10 +22,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-      message =
-        typeof exceptionResponse === 'string'
-          ? exceptionResponse
-          : exceptionResponse;
+      message = typeof exceptionResponse === 'string' ? exceptionResponse : exceptionResponse;
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
       message = exception.message;

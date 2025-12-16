@@ -8,19 +8,18 @@ import nextTs from 'eslint-config-next/typescript';
  * @type {import('eslint').Linter.Config[]}
  */
 export const nextConfig = defineConfig([
-    ...nextVitals,
-    ...nextTs,
-    globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
-    {
-        rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-unused-vars': [
-                'error',
-                { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-            ],
-        },
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
+  },
 ]);
 
 export default nextConfig;
-

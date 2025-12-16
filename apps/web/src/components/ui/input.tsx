@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { type InputHTMLAttributes, forwardRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { type InputHTMLAttributes, forwardRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,22 +10,9 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      label,
-      error,
-      type = "text",
-      showPasswordToggle = false,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, label, error, type = 'text', showPasswordToggle = false, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
-    const inputType =
-      type === "password" && showPasswordToggle && showPassword
-        ? "text"
-        : type;
+    const inputType = type === 'password' && showPasswordToggle && showPassword ? 'text' : type;
 
     return (
       <div className="flex flex-col gap-2 w-full">
@@ -39,18 +26,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={inputType}
             className={cn(
-              "w-full bg-[#1a1a1a] border border-transparent rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none focus:ring-2 focus:ring-[#9747ff] focus:border-transparent transition-colors",
-              error && "border-red-500 focus:ring-red-500",
-              className
+              'w-full bg-[#1a1a1a] border border-transparent rounded-[8px] p-4 text-[16px] font-medium leading-[24px] text-white placeholder:text-[rgba(255,255,255,0.2)] focus:outline-none focus:ring-2 focus:ring-[#9747ff] focus:border-transparent transition-colors',
+              error && 'border-red-500 focus:ring-red-500',
+              className,
             )}
             {...props}
           />
-          {showPasswordToggle && type === "password" && (
+          {showPasswordToggle && type === 'password' && (
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.6)] hover:text-white transition-colors"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? (
                 <svg
@@ -107,13 +94,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error && (
-          <p className="text-[12px] leading-[16px] text-red-500">{error}</p>
-        )}
+        {error && <p className="text-[12px] leading-[16px] text-red-500">{error}</p>}
       </div>
     );
-  }
+  },
 );
 
-Input.displayName = "Input";
-
+Input.displayName = 'Input';

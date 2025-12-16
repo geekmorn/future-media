@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import type { Post } from "@repo/types";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import type { Post } from '@repo/types';
 import {
   getPosts,
   createPost as createPostApi,
@@ -10,7 +10,7 @@ import {
   type GetPostsParams,
   type CreatePostParams,
   type UpdatePostParams,
-} from "@/lib/api/posts";
+} from '@/lib/api/posts';
 
 export interface UsePostsOptions {
   authorIds?: string[];
@@ -37,10 +37,10 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  
+
   // Track if initial load has happened
   const hasLoadedRef = useRef(false);
-  
+
   // Keep options stable for comparison
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -64,13 +64,13 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
   const loadInitial = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const data = await fetchPosts();
       setPosts(data.items);
       setNextCursor(data.nextCursor);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load posts");
+      setError(err instanceof Error ? err.message : 'Failed to load posts');
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +87,7 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
       setPosts((prev) => [...prev, ...data.items]);
       setNextCursor(data.nextCursor);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load more posts");
+      setError(err instanceof Error ? err.message : 'Failed to load more posts');
     } finally {
       setIsLoadingMore(false);
     }
@@ -108,9 +108,7 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
   const updatePost = useCallback(async (id: string, params: UpdatePostParams): Promise<Post> => {
     const updatedPost = await updatePostApi(id, params);
     // Update the post in the list
-    setPosts((prev) =>
-      prev.map((post) => (post.id === id ? updatedPost : post))
-    );
+    setPosts((prev) => prev.map((post) => (post.id === id ? updatedPost : post)));
     return updatedPost;
   }, []);
 
@@ -131,7 +129,7 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
     if (hasLoadedRef.current) {
       loadInitial();
     }
-  }, [options.authorIds?.join(","), options.tagIds?.join(","), loadInitial]);
+  }, [options.authorIds?.join(','), options.tagIds?.join(','), loadInitial]);
 
   return {
     posts,
