@@ -11,6 +11,8 @@ A modern social media platform built as a monorepo with NestJS backend and Next.
   - [Environment Setup](#environment-setup)
   - [Running with Docker Compose](#running-with-docker-compose)
   - [Running Services Individually](#running-services-individually)
+- [Testing](#testing)
+- [Database Seeding](#database-seeding)
 - [API Documentation](#api-documentation)
 - [Scripts](#scripts)
 
@@ -167,6 +169,62 @@ pnpm start:api
 pnpm start:web
 ```
 
+## Testing
+
+The API includes unit tests and e2e tests using Jest.
+
+### Running Tests
+
+```bash
+# Run all unit tests
+pnpm test
+
+# Run tests in watch mode (re-run on file changes)
+pnpm test:watch
+
+# Run tests with coverage report
+pnpm --filter @app/api test:cov
+
+# Run e2e tests
+pnpm test:e2e
+```
+
+### Test Structure
+
+```
+apps/api/
+├── src/
+│   └── modules/
+│       ├── auth/
+│       │   └── auth.service.spec.ts      # Auth service unit tests
+│       ├── posts/
+│       │   └── posts.service.spec.ts     # Posts service unit tests
+│       └── tags/
+│           └── tags.service.spec.ts      # Tags service unit tests
+└── test/
+    └── app.e2e-spec.ts                   # End-to-end tests
+```
+
+## Database Seeding
+
+To populate the database with test data, run the seed script:
+
+```bash
+# From the root directory
+cd apps/api && pnpm seed:posts
+
+# Or if you're already in apps/api
+pnpm seed:posts
+```
+
+The seed script creates:
+
+- **5 test users**: `alice`, `bob`, `charlie`, `diana`, `eve` (password: `password123`)
+- **20 tags**: javascript, typescript, react, nodejs, python, rust, go, docker, kubernetes, aws, database, frontend, backend, devops, testing, security, api, graphql, nextjs, tailwind
+- **500 posts**: Random content from sample templates with random tags and dates (last 90 days)
+
+> **Note**: The script is idempotent for users and tags - running it multiple times will not duplicate existing users or tags, but will create additional posts.
+
 ## API Documentation
 
 Swagger documentation is available at:
@@ -176,17 +234,19 @@ Swagger documentation is available at:
 
 ## Scripts
 
-| Script           | Description                            |
-| ---------------- | -------------------------------------- |
-| `pnpm dev`       | Start all services in development mode |
-| `pnpm dev:api`   | Start API in development mode          |
-| `pnpm dev:web`   | Start Web in development mode          |
-| `pnpm build`     | Build all services                     |
-| `pnpm build:api` | Build API                              |
-| `pnpm build:web` | Build Web                              |
-| `pnpm start:api` | Start API in production mode           |
-| `pnpm start:web` | Start Web in production mode           |
-| `pnpm lint`      | Run ESLint across all packages         |
-| `pnpm format`    | Format code with Prettier              |
-| `pnpm test`      | Run API tests                          |
-| `pnpm test:e2e`  | Run API end-to-end tests               |
+| Script            | Description                                        |
+| ----------------- | -------------------------------------------------- |
+| `pnpm dev`        | Start all services in development mode             |
+| `pnpm dev:api`    | Start API in development mode                      |
+| `pnpm dev:web`    | Start Web in development mode                      |
+| `pnpm build`      | Build all services                                 |
+| `pnpm build:api`  | Build API                                          |
+| `pnpm build:web`  | Build Web                                          |
+| `pnpm start:api`  | Start API in production mode                       |
+| `pnpm start:web`  | Start Web in production mode                       |
+| `pnpm lint`       | Run ESLint across all packages                     |
+| `pnpm format`     | Format code with Prettier                          |
+| `pnpm test`       | Run API unit tests                                 |
+| `pnpm test:watch` | Run API tests in watch mode                        |
+| `pnpm test:e2e`   | Run API end-to-end tests                           |
+| `pnpm seed:posts` | Seed database with test data (run from `apps/api`) |
