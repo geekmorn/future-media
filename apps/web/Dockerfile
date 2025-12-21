@@ -25,6 +25,9 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+ARG API_URL=http://localhost:4050
+ENV API_URL=${API_URL}
+
 RUN pnpm --filter @app/web build
 
 FROM base AS runner

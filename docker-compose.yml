@@ -25,15 +25,14 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        - API_URL=${API_URL:-http://localhost:4050}
     container_name: future-media-web
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - API_URL=http://api:${PORT:-4050}/api
     depends_on:
       api:
         condition: service_healthy
@@ -44,6 +43,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  cloudlfared:
+    image: cloudflare/cloudflared:latest
+    container_name: tunnel
+    command: tunnel run
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
 
 volumes:
   api-data:
