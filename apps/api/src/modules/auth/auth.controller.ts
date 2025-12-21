@@ -120,24 +120,36 @@ export class AuthController {
 
   private setAuthCookies(res: Response, tokens: TokenPair): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const cookieDomain = this.configService.get<string>('COOKIE_DOMAIN');
 
-    res.cookie('accessToken', tokens.accessToken, {
+    const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
+      path: '/',
+      ...(cookieDomain && { domain: cookieDomain }),
+    };
+
+    res.cookie('accessToken', tokens.accessToken, {
+      ...cookieOptions,
       maxAge: TOKEN_EXPIRATION.ACCESS_TOKEN_MS,
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
+      ...cookieOptions,
       maxAge: TOKEN_EXPIRATION.REFRESH_TOKEN_MS,
     });
   }
 
   private clearAuthCookies(res: Response): void {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    const cookieDomain = this.configService.get<string>('COOKIE_DOMAIN');
+
+    const clearOptions = {
+      path: '/',
+      ...(cookieDomain && { domain: cookieDomain }),
+    };
+
+    res.clearCookie('accessToken', clearOptions);
+    res.clearCookie('refreshToken', clearOptions);
   }
 }
