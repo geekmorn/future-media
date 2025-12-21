@@ -1,3 +1,4 @@
-export { config } from '../config';
+import { config } from '../config';
 
-export const API_BASE_URL = process.env.API_URL ?? 'http://localhost:4050/api';
+export { config };
+export const API_BASE_URL = config.api.url;
