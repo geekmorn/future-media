@@ -10,6 +10,9 @@ const API_URL = process.env.API_URL || 'http://localhost:4050';
 const nextConfig: NextConfig = {
   reactCompiler: true,
   output: 'standalone',
+  turbopack: {
+    root: resolve(__dirname, '../..'),
+  },
 
   async rewrites() {
     return [
